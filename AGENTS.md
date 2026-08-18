@@ -24,7 +24,9 @@ You are building a **profitable SaaS**, not a LinkedIn scraper and not a spam ca
 target → bridges in your graph → path proof + why → ask mode → you send
 ```
 
-If a feature does not tighten this loop or increase willingness to pay, do not build it.
+**Long-arc (do not build ahead of the wedge):** NET memory (reached DMs + helpers) → thicken edges → opportunity radar + friendly spider-web UX. See `docs/PRODUCT.md` Ecosystem arc.
+
+If a feature does not tighten the wedge loop *or* clearly advance the sequenced NET arc (and willingness to pay), do not build it.
 
 ## Hard bans
 
