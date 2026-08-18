@@ -1,5 +1,7 @@
 # Architecture & critical path — Warm Bridge
 
+> AIs: also read `docs/context/CURRENT.md` and follow `AGENTS.md`. After changes, update context + daily log.
+
 ## Product thesis
 
 Comerciais travam no tomador de decisão. O que funciona no campo (e espelha a lógica de “vender quem abordar” da healthtech):
