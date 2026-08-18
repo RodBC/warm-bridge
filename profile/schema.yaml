@@ -1,0 +1,28 @@
+# Seller schema (conceptual). Validated lightly in code.
+
+identity:
+  description: Who is asking for the bridge (signature + voice).
+  required: [name]
+  fields: [name, city, phone, email, linkedin, company, role]
+
+sales_tutoring:
+  description: >
+    Deep intake used for approach tone, what they sell, and what asks feel natural.
+    Platform layer beyond "paste a target name".
+  fields:
+    products_sold: list[str]
+    buyer_personas: list[str]
+    enjoyed_most: list[str]
+    positive_differentials: list[str]
+    improvement_areas: list[str]
+    hates_doing: list[str]
+    challenges_overcome: list[str]
+    networking_style: list[str]
+
+targets:
+  description: Default optimization for matching.
+  fields: [locales, default_channel, territories]
+
+voice:
+  description: Short phrases that keep messages sounding like the seller.
+  fields: [greeting_pt, greeting_en, signoff_pt, signoff_en, value_one_liner_pt, value_one_liner_en]

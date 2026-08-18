@@ -1,0 +1,81 @@
+# Fictional network graph — private copy: data/network.yaml (gitignored).
+# Sources are user-supplied imports (LinkedIn export, phone contacts), not scrapers.
+
+contacts:
+  - id: c_ana
+    name: Ana Ribeiro
+    first_name: Ana
+    sources: [linkedin, phone]
+    company: Acme Saúde
+    title: Coordenadora de Suprimentos
+    strength: high
+    last_touch_days: 20
+    schools: []
+    past_companies: ["Hospital Exemplo"]
+    notes: "Colega de época do Hospital Exemplo; ainda fala com compras da Acme."
+    tags: [compras, interior-sp]
+
+  - id: c_bruno
+    name: Bruno Martins
+    first_name: Bruno
+    sources: [phone]
+    company: Clínica Horizonte
+    title: Gerente Comercial
+    strength: high
+    last_touch_days: 45
+    schools: []
+    past_companies: []
+    notes: "Indica bem; conhece Marina Costa de eventos da associação."
+    tags: [network-forte]
+
+  - id: c_diana
+    name: Diana Lopes
+    first_name: Diana
+    sources: [linkedin]
+    company: Norte Med
+    title: Analista de Compras
+    strength: medium
+    last_touch_days: 120
+    schools: ["UNICAMP"]
+    past_companies: []
+    notes: "UNICAMP; mencionou interessar-se por networking em compras hospitalares."
+    tags: [alumni-unicamp]
+
+  - id: c_edu
+    name: Eduardo Nascimento
+    first_name: Eduardo
+    sources: [linkedin]
+    company: Beta Farma
+    title: Key Account Manager
+    strength: low
+    last_touch_days: 400
+    schools: []
+    past_companies: ["Acme Saúde"]
+    notes: "Passou pela Acme Saúde há 2 anos."
+    tags: [ex-acme]
+
+  - id: c_marina
+    name: Marina Costa
+    first_name: Marina
+    sources: [linkedin]
+    company: Acme Saúde
+    title: Diretora de Compras
+    strength: unknown
+    last_touch_days: null
+    schools: []
+    past_companies: []
+    notes: "Alvo frequente; conexão LinkedIn fraca / sem histórico."
+    tags: [target-example]
+
+  - id: c_fernanda
+    name: Fernanda Dias
+    first_name: Fernanda
+    sources: [phone]
+    company: Associação Regional de Clínicas
+    title: Diretora executiva
+    strength: medium
+    last_touch_days: 60
+    schools: []
+    past_companies: []
+    notes: "Organiza encontros; Acme Saúde costuma participar."
+    tags: [associacao]

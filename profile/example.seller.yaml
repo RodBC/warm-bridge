@@ -1,0 +1,49 @@
+# Fictional seller — private copy lives in data/seller.yaml (gitignored).
+
+identity:
+  name: Camila Ferreira
+  city: Campinas, Brazil
+  phone: "+55 19 90000-0000"
+  email: camila@example.com
+  linkedin: linkedin.com/in/camila-example
+  company: Ferreira & Assoc.
+  role: Executiva comercial
+
+sales_tutoring:
+  products_sold:
+    - Equipamentos e insumos para clínicas e hospitais regionais
+  buyer_personas:
+    - Diretoria clínica
+    - Compras / suprimentos
+    - Coordenação de farmácia
+  enjoyed_most:
+    - Chegar em tomador de decisão via indicação da rede
+    - Entender o fluxo real de compra antes de pitchar
+  positive_differentials:
+    - Rede forte no interior de SP
+    - Conversa direta, sem deck na primeira mensagem
+  improvement_areas:
+    - Organizar follow-ups sem parecer cobrança
+  hates_doing:
+    - Cold call sem contexto
+    - Pedir indicação sem facilitar o “encaminha este texto”
+  challenges_overcome:
+    - Conta travada em compras; destravou via ex-coordenadora que abriu a diretoria
+  networking_style:
+    - Prefere WhatsApp curto
+    - Só pede intro quando a relação aguenta
+
+targets:
+  locales: [pt, en]
+  default_channel: whatsapp
+  territories:
+    - Interior SP
+    - Campinas / região
+
+voice:
+  greeting_pt: "Oi {bridge_first},"
+  greeting_en: "Hi {bridge_first},"
+  signoff_pt: "Valeu demais,\nCamila"
+  signoff_en: "Thanks a lot,\nCamila"
+  value_one_liner_pt: "Ajudo clínicas a organizar compra de insumos com menos fricção."
+  value_one_liner_en: "I help clinics streamline supply purchasing with less friction."

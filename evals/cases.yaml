@@ -1,0 +1,46 @@
+# Eval cases — run: warm-bridge eval
+
+cases:
+  - id: same_company_ranks_high
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    expect_top_bridge_id: c_ana
+    expect_types_include: [same_company]
+
+  - id: notes_mutual_hint
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    expect_bridge_id: c_bruno
+    expect_types_include: [mutual_hint]
+
+  - id: past_company_ex_employee
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    expect_bridge_id: c_edu
+    expect_types_include: [same_company, alumni]
+
+  - id: direct_target_in_graph
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    expect_bridge_id: c_marina
+    expect_types_include: [direct]
+
+  - id: mode_high_trust_intro
+    check: >
+      strength=high + same_company → mode ask_intro (or peer_forward), never ask_permission.
+
+  - id: mode_low_trust_soft
+    check: >
+      strength=low → mode ask_permission or ask_intel, never hard ask_intro.
+
+  - id: no_invention
+    check: >
+      Approach text must not invent employers, events, or closeness absent from contact notes.

@@ -1,0 +1,75 @@
+# Bridge taxonomy + scoring — extracted from how field commercials actually get meetings:
+# network → referral → decision-maker. Same idea as selling "who to approach" intel.
+
+bridge_types:
+  direct:
+    label: Already connected to target
+    summary_lens: You can message the buyer directly; bridge work is optional polish
+    base_score: 1.0
+    signals:
+      - name_match
+      - linkedin_1st
+      - phone_match
+
+  same_company:
+    label: Bridge at target's company
+    summary_lens: Colleague / ex-colleague who can introduce or vouch internally
+    base_score: 0.85
+    signals:
+      - company_overlap
+      - current_employer_match
+      - past_employer_match
+
+  mutual_hint:
+    label: Notes / tags point at target or company
+    summary_lens: Explicit relationship clue in your own notes (not inferred scraping)
+    base_score: 0.75
+    signals:
+      - notes_mention_target
+      - notes_mention_company
+      - tag_decision_maker
+
+  phone_warm:
+    label: Strong phone relationship + context overlap
+    summary_lens: High-trust cell contact who can open a door (common for field sales)
+    base_score: 0.7
+    signals:
+      - source_phone
+      - high_trust
+      - company_or_role_overlap
+
+  alumni:
+    label: Shared school or past employer
+    summary_lens: Soft tie — use for permission / intel, not hard ask on first touch
+    base_score: 0.45
+    signals:
+      - school_overlap
+      - past_company_overlap
+
+  title_adjacent:
+    label: Title sits next to the buyer
+    summary_lens: Peer / adjacent function who knows the real decision-maker
+    base_score: 0.55
+    signals:
+      - title_keyword_overlap
+      - function_adjacent
+
+# Relationship strength multipliers (seller-supplied; never invent)
+strength_multipliers:
+  high: 1.25
+  medium: 1.0
+  low: 0.7
+  unknown: 0.85
+
+# Recency multipliers (optional; from last_touch_days)
+recency_multipliers:
+  within_30d: 1.15
+  within_90d: 1.05
+  within_365d: 1.0
+  stale: 0.8
+  unknown: 1.0
+
+defaults:
+  top_k: 5
+  min_score: 0.35
+  prefer_locale: pt

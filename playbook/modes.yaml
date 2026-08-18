@@ -1,0 +1,45 @@
+# Approach modes — when to use which template.
+
+modes:
+  ask_intro:
+    label: Ask for warm intro
+    when: high trust + clear path (same_company, mutual_hint, phone_warm, direct)
+    include_blurb: true
+  peer_forward:
+    label: Ask bridge to forward a blurb
+    when: medium trust; bridge won't call but will forward
+    include_blurb: true
+  ask_intel:
+    label: Ask for org / buyer map
+    when: path unclear; need who decides before asking intro
+    include_blurb: false
+  ask_permission:
+    label: Soft permission / name-drop OK
+    when: weak tie (alumni, stale, unknown strength)
+    include_blurb: false
+
+# Title adjacency keywords (buyer side → bridge titles that often help)
+title_adjacency:
+  compras:
+    - compras
+    - procurement
+    - supply
+    - suprimentos
+    - purchasing
+  diretoria:
+    - diretor
+    - director
+    - head
+    - vp
+    - gerent
+  clinica:
+    - medico
+    - médica
+    - clínico
+    - prescrit
+    - farmac
+  comercial:
+    - comercial
+    - sales
+    - account
+    - key account
