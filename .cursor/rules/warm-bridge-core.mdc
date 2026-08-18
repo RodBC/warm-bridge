@@ -1,0 +1,35 @@
+---
+description: Warm Bridge AI contract — always read/update docs/context; SaaS north star; no LinkedIn harvesters
+alwaysApply: true
+---
+
+# Warm Bridge — always on
+
+You are working on **Warm Bridge**, a SaaS for warm sales reach-out to decision-makers.
+
+## Mandatory context loop
+
+1. **Read** `docs/context/CURRENT.md` before non-trivial work.  
+2. **Follow** `AGENTS.md`.  
+3. **Update** `docs/context/CURRENT.md` and append `docs/context/log/YYYY-MM-DD.md` when you change product state, architecture, or priorities.  
+4. Chat is not durable memory. If it matters, write it to the repo.
+
+## North star
+
+`target → bridges in your graph → path proof + why → ask mode → you send`
+
+Do not build features outside this loop unless the user explicitly expands scope.
+
+## Hard bans
+
+- Automated LinkedIn / address-book harvesting in this public repo  
+- Inventing mutuals or relationship strength  
+- Mass-sending WhatsApp/DM on the user’s behalf from our servers  
+- Fake “% fit” scores  
+
+## Prefer
+
+- Deterministic score + explain + playbook asks  
+- Paste/CSV/green-tier sources (`docs/sources.yaml`)  
+- Small conventional commits  
+- Encoding new conventions into `.cursor/skills/`  

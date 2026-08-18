@@ -1,0 +1,53 @@
+# Network & contact sources — policy tiers
+# green = official/open or user-owned export
+# yellow = cautious / assisted; no login bypass
+# red = ToS-hostile or fragile automation — do not ship in public core
+
+sources:
+  linkedin_connections_csv:
+    tier: green
+    notes: "Official LinkedIn member Connections.csv uploaded by user. Parse locally."
+    enabled: true
+    module: warm_bridge.imports.parse_linkedin_connections_csv
+
+  phone_csv:
+    tier: green
+    notes: "User-exported phone book CSV (name,phone,company,title,notes,strength)."
+    enabled: true
+    module: warm_bridge.imports.parse_phone_csv
+
+  user_paste_cards:
+    tier: green
+    notes: "Blank-line-separated contact cards pasted by user."
+    enabled: true
+    module: warm_bridge.imports.parse_contacts_paste
+
+  vcard_export:
+    tier: green
+    notes: "Apple/Google vCard — not implemented yet; green when user-owned."
+    enabled: false
+
+  google_contacts_oauth:
+    tier: green
+    notes: "Official OAuth only if/when built. Never password scrape."
+    enabled: false
+
+  linkedin_oauth_partner:
+    tier: green
+    notes: "Only via official partner APIs if available."
+    enabled: false
+
+  browser_assisted_capture:
+    tier: yellow
+    notes: "User logged-in, user-initiated capture in private tooling — not headless farm in OSS."
+    enabled: false
+
+  linkedin_automated_scrape:
+    tier: red
+    notes: "Banned in public core. ToS, bans, wrong moat."
+    enabled: false
+
+  mass_whatsapp_send:
+    tier: red
+    notes: "Out of product scope. Drafts only; user sends."
+    enabled: false

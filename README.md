@@ -1,74 +1,90 @@
 # Warm Bridge
 
-**Alvo → pontes na sua rede → caminho ranqueado + pedido pronto.**
+**Warm paths to decision-makers — ranked bridges + ask scripts from *your* network.**
 
-SaaS wedge for field/B2B sales: decision-makers are hard to reach; warm paths beat cold spray. Import LinkedIn + phone contacts, name the buyer, get the best bridge and a WhatsApp-ready ask — **you** send.
+Stop cold-chasing buyers. Import LinkedIn + phone contacts, name the target, get the hottest bridge and a WhatsApp-ready ask. **You** send. The product does not burn your relationships or scrape LinkedIn for you.
 
-## Product thesis
+```
+target → bridges in your graph → path proof + why → ask mode → you send
+```
 
-Same commercial posture as Career Fit, different job-to-be-done:
+That loop is the company. Everything else is distribution.
+
+## Who pays
+
+Field / B2B commercials (starting wedge: reps like “parents as sellers”) who already get meetings via network — but waste time hunting *who* can open the door and *how* to ask without looking desperate.
+
+Same insight healthtech uses when it sells “who to approach” from CRM: **intel on the path is the product.** Here the CRM is the seller’s own LinkedIn + cell.
+
+## Why we win
+
+| Pain | We ship | Moat |
+|------|---------|------|
+| Can’t reach the decision-maker | Ranked bridges from *user-owned* graph | Bridge taxonomy + strength-gated asks |
+| Fear of burning a contact | Modes: intro / forward / intel / permission | Playbook in `playbook/` — not generic LLM spam |
+| Tools that scrape & risk accounts | Official CSV / paste only | Trust + ToS hygiene |
+| Vague “AI networking” apps | One-line **path proof** + deterministic why | Explainability commercials trust |
+
+Scrapers are not the moat. **Path quality + ask craft + later reply outcomes** are.
+
+## Sibling product
 
 | Career Fit | Warm Bridge |
 |------------|-------------|
 | Job → tailored CV → DM recruiter | Target → warm bridge → ask for intro |
 | Angle playbook on one bio | Bridge taxonomy on one graph |
-| Paste JD + recruiter cards | Paste/export Connections + phone book |
+| Candidate reach-out | Seller reach-out |
 
-Moat = **path proof + ask craft that doesn’t burn relationships**, not scrapers.
+Same SaaS posture. Different job-to-be-done. Shared discipline: paste-not-scrape, manual send, durable AI context in git.
 
-See `docs/ARCHITECTURE.md`.
-
-## Quick start
+## Run it
 
 ```bash
 cd warm-bridge
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
 
-# CLI
+warm-bridge eval
 warm-bridge find \
   --target-name "Marina Costa" \
   --target-company "Acme Saúde" \
   --target-title "Diretora de Compras"
 
-warm-bridge approach --target-name "Marina Costa" --target-company "Acme Saúde" --locale pt
-warm-bridge import --file corpus/examples/linkedin-connections-sample.csv
-warm-bridge eval
-
-# UI (two terminals)
-warm-bridge serve          # API :8788
-cd web && npm install && npm run dev   # UI :5174
+# UI — two terminals
+warm-bridge serve                 # API http://127.0.0.1:8788
+cd web && npm install && npm run dev   # UI http://localhost:5174
 ```
 
-## What's in the box
-
-| Path | Purpose |
-|------|---------|
-| `playbook/` | Bridge types, modes, anti-spam ask rules |
-| `corpus/examples/` | Ask patterns + sample LinkedIn/phone CSV |
-| `profile/` | Seller + network schema (fictional examples) |
-| `prompts/` | Optional LLM polish (not required for v0.2) |
-| `src/warm_bridge/` | Import → resolve → score → explain → approach |
-| `web/` | Commercial funnel UI (Rede → Alvo → Pontes → Pedir) |
-| `docs/ARCHITECTURE.md` | Priorities, anti-scrape, what we borrow from career-fit/entrep |
-
-### Performance idea
-
-1. Normalize user-owned imports into a local graph  
-2. Resolve whether the target is already in-graph (`CONFIRMED` / `LIKELY` / `NOT_IN_GRAPH`)  
-3. Score bridges with playbook weights  
-4. Explain *why* (deterministic bullets) + confidence bands (not fake %)  
-5. Fill ask templates by mode; optional LLM later  
-
-## Private data
+Import real data (never commit PII):
 
 ```bash
-cp profile/example.seller.yaml data/seller.yaml
-cp profile/example.network.yaml data/network.yaml
+warm-bridge import --file ~/Downloads/Connections.csv
+cp profile/example.seller.yaml data/seller.yaml   # then edit
 ```
 
-`data/*.yaml` is gitignored.
+## Repo map
+
+| Path | Role |
+|------|------|
+| `AGENTS.md` | **Contract for every AI** — read/write context or don’t touch the repo |
+| `docs/PRODUCT.md` | Vision, tiers, exit criteria |
+| `docs/ARCHITECTURE.md` | System, priorities, non-goals |
+| `docs/context/CURRENT.md` | Living session state — **source of truth** |
+| `docs/context/log/` | Append-only day logs |
+| `.cursor/skills/` | How AIs execute product/bridges/sources/context |
+| `.cursor/rules/` | Always-on Cursor enforcement |
+| `playbook/` | Bridge types, modes, anti-spam ask rules |
+| `src/warm_bridge/` | import → resolve → score → explain → approach |
+| `web/` | Funnel UI: Rede → Alvo → Pontes → Pedir |
+
+## AI rule (non-negotiable)
+
+Chat is ephemeral. **Repo context is memory.**
+
+1. Before coding: read `docs/context/CURRENT.md` + `AGENTS.md`  
+2. After meaningful work: update CURRENT + append `docs/context/log/YYYY-MM-DD.md`  
+3. New durable ideas → skill, rule, or PRODUCT/ARCHITECTURE — not only chat  
 
 ## License
 
-MIT
+MIT — keep real contacts in `data/` (gitignored).
