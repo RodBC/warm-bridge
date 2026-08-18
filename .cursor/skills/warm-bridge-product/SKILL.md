@@ -24,15 +24,17 @@ Ship only if it improves at least one:
 ## Moat order
 
 1. Bridge playbook + anti-spam-through-friend craft  
-2. Outcome data over time  
-3. Notes / strength tutoring quality  
-4. Trust (no account-burning scrapers)
+2. Outcome data + reach tracker (DM / bridge / intro history)  
+3. Notes / strength tutoring + suggestion quality (café, events, setup helpers)  
+4. Trust (no account-burning scrapers)  
+5. Network compounding (NET densifies with use)
 
 ## Default answers
 
 - LinkedIn auto-scrape? **No** in public core.  
 - Auto-send WhatsApp? **No**.  
 - More enrichment? **User-owned imports first**; green/yellow only per `docs/sources.yaml`.  
-- Vector search? **Not until the graph outgrows deterministic rules.**  
+- Vector search / pretty graph first? **No** — wedge path proof first; spider-web UI later and must stay actionable.  
+- Ecosystem NET (tracker + radar + graph)? **Yes as vision**; sequence after outcome logging.  
 
-Read `docs/PRODUCT.md` before changing tiers or positioning.
+Read `docs/PRODUCT.md` (esp. Ecosystem arc) before changing tiers or positioning.

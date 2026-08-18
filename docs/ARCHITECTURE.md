@@ -31,7 +31,10 @@ Manual send é feature: qualidade > spray. Relação é o ativo.
 | **P1** | Strength tutoring (“posso pedir pra essa pessoa?”) | Reduz burn de rede |
 | **P1** | Conta/território (multi-alvo por empresa) | Pais = várias contas/semana |
 | **P2** | LLM polish opcional | Só depois do determinístico estável |
-| **Later** | CRM sync / team graph | Expansão, não MVP |
+| **P2** | Reach / outcome tracker (DMs, bridges, intros) | Memória do ecossistema — sem isso não há NET |
+| **Later** | Opportunity radar (cidade, eventos, setup helpers, posts) | Sugestões que densificam a rede |
+| **Later** | NET UI (spider-web / edge graph) + UX field-first | Visualizar e expandir pontos de contato |
+| **Later** | CRM sync / team graph | Expansão multi-rep |
 
 ## LinkedIn scraping — critical take
 

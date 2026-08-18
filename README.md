@@ -10,6 +10,8 @@ target → bridges in your graph → path proof + why → ask mode → you send
 
 That loop is the company. Everything else is distribution.
 
+**Long game:** a friendly **NET** — track who you reached and who helps, grow the spider-web of contacts, and get suggestions (café nearby, setup helpers, events, posts, thin edges to fill). Ship the wedge first; the ecosystem is how we retain and compound.
+
 ## Who pays
 
 Field / B2B commercials (starting wedge: reps like “parents as sellers”) who already get meetings via network — but waste time hunting *who* can open the door and *how* to ask without looking desperate.

@@ -15,6 +15,8 @@ Loop:
 
 `target → bridges in your graph → path proof + why → ask mode → you send`
 
+**Long-arc (ecosystem / NET):** track decision-makers + helpful bridges → thicken the edge graph (spider web) → suggest next moves (same-city café, setup helpers, events, posts, thin edges to grow) → friendly UI/UX. Wedge ships first; NET is the retention moat.
+
 ## What exists now
 
 - Playbook: `playbook/bridge-types.yaml`, `modes.yaml`, `approach-rules.md`, `structure.md`  
@@ -45,21 +47,27 @@ Loop:
 4. **P1** Account / multi-target workspace (several buyers at one company)  
 5. **P1** Persist network in browser session / local file without YAML friction  
 6. **P2** Optional LLM polish behind `playbook/approach-rules.md`  
-7. **P2** Outcome logging (did the bridge reply / intro land?)  
-8. **Later** Team territory graph; CRM export of “who to approach”
+7. **P2** Outcome / reach logging (DM reached? bridge helped? intro landed?) — foundation for NET memory  
+8. **Later** Opportunity radar: same-city café, common-friend/ex-colleague setup, events, LinkedIn topic posts, territory underuse  
+9. **Later** NET UI — spider-web / edge graph, user-friendly (list-first, graph when useful, mobile for field)  
+10. **Later** Team territory graph; CRM export of “who to approach”
 
 ## Open questions
 
 - Exact Pro price ($29–49 draft)  
 - Whether Team (parents co-selling) ships before LLM polish  
 - vCard / Google Contacts adapter priority vs LinkedIn CSV alone  
-- Cross-link / shared auth with Career Fit later?
+- Cross-link / shared auth with Career Fit later?  
+- How much graph UX in Pro vs Team (spider web can distract from “send the ask”)?
 
 ## Ideas captured (not yet scoped)
 
 - Favor-bank / cooldown after asking a bridge  
 - Pulse-style weekly email: “3 accounts with new warm paths”  
 - Healthtech analogy landing page: sell the *path*, not the feature list  
+- **Ecosystem NET:** living tracker of reached DMs + bridge helpers; densify edges; suggest café / events / setup helpers / posts / thin-spot contacts  
+- “Where the net is thin” — intentional new contacts (still user-initiated adds)  
+- Content assists tied to open accounts  
 
 ## Do not regress
 
@@ -84,6 +92,6 @@ When updating this file, keep sections above and refresh **Last session**:
 ### Last session
 
 - Date: 2026-08-18  
-- Done: Decisive README/PRODUCT/AGENTS; cursor rules+skills; docs/context system; sources.yaml; entrep-transfer notes; logged prior wedge (import/resolve/API/UI) into durable context  
+- Done: Locked ecosystem / NET vision into PRODUCT + ARCHITECTURE + CURRENT (tracker, spider-web, opportunity radar, UX bar); kept wedge-first sequencing  
 - Blocked: none  
 - Next exact task: Run real-CSV validation (import one seller network → one real target → judge if #1 bridge matches human instinct)  
