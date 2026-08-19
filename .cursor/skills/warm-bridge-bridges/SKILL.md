@@ -28,6 +28,10 @@ Follow `playbook/approach-rules.md`, `structure.md`, `bridge-types.yaml`, `modes
 5. `approach.build_approach` — mode templates  
 6. Optional LLM only via `prompts/approach_polish.md` + approach-rules  
 
+Account map (N targets, one company): `accounts.find_account` → loops `build_find_result` — do not fork scoring in UI.
+
+Full ownership map: `docs/AI_BUILD_MAP.md` §4. Tutoring: `tutor.py` → attached in `enrich_ranked`.
+
 ## Evals
 
 Run `warm-bridge eval` after changing weights, signals, or mode selection.

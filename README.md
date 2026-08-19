@@ -69,6 +69,7 @@ cp profile/example.seller.yaml data/seller.yaml   # then edit
 | Path | Role |
 |------|------|
 | `AGENTS.md` | **Contract for every AI** — read/write context or don’t touch the repo |
+| [`docs/AI_BUILD_MAP.md`](docs/AI_BUILD_MAP.md) | Commit ledger + file/module ownership — **how / where / why** |
 | `docs/PRODUCT.md` | Vision, tiers, exit criteria |
 | `docs/ARCHITECTURE.md` | System, priorities, non-goals |
 | `docs/context/CURRENT.md` | Living session state — **source of truth** |
@@ -83,8 +84,8 @@ cp profile/example.seller.yaml data/seller.yaml   # then edit
 
 Chat is ephemeral. **Repo context is memory.**
 
-1. Before coding: read `docs/context/CURRENT.md` + `AGENTS.md`  
-2. After meaningful work: update CURRENT + append `docs/context/log/YYYY-MM-DD.md`  
+1. Before coding: read `docs/context/CURRENT.md` + `AGENTS.md` (+ `docs/AI_BUILD_MAP.md` for code work)  
+2. After meaningful work: update CURRENT + append `docs/context/log/YYYY-MM-DD.md` (+ AI_BUILD_MAP if layers changed)  
 3. New durable ideas → skill, rule, or PRODUCT/ARCHITECTURE — not only chat  
 
 ## License

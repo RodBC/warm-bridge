@@ -11,8 +11,10 @@ You are working on **Warm Bridge**, a SaaS for warm sales reach-out to decision-
 
 1. **Read** `docs/context/CURRENT.md` before non-trivial work.  
 2. **Follow** `AGENTS.md`.  
-3. **Update** `docs/context/CURRENT.md` and append `docs/context/log/YYYY-MM-DD.md` when you change product state, architecture, or priorities.  
-4. Chat is not durable memory. If it matters, write it to the repo.
+3. For code work, read `docs/AI_BUILD_MAP.md` (how / where / why existing layers).  
+4. **Update** `docs/context/CURRENT.md` and append `docs/context/log/YYYY-MM-DD.md` when you change product state, architecture, or priorities.  
+5. After new modules/routes/layers, update `docs/AI_BUILD_MAP.md`.  
+6. Chat is not durable memory. If it matters, write it to the repo.
 
 ## North star
 
@@ -33,3 +35,4 @@ Do not build features outside this loop unless the user explicitly expands scope
 - Paste/CSV/green-tier sources (`docs/sources.yaml`)  
 - Small conventional commits  
 - Encoding new conventions into `.cursor/skills/`  
+- Extending `docs/AI_BUILD_MAP.md` when modules/routes/layers land  

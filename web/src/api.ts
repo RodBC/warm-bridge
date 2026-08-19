@@ -8,7 +8,20 @@ export type ContactNode = {
   title?: string;
   strength?: string;
   notes?: string;
+  phone?: string;
+  linkedin_url?: string;
   sources?: string[];
+};
+
+export type TutorAdvice = {
+  level: string;
+  can_ask: boolean;
+  headline: string;
+  headline_pt: string;
+  headline_en: string;
+  bullets: string[];
+  bullets_pt: string[];
+  bullets_en: string[];
 };
 
 export type Bridge = {
@@ -27,6 +40,7 @@ export type Bridge = {
   phone: string;
   linkedin_url: string;
   message?: string;
+  tutor?: TutorAdvice;
 };
 
 export type FindResult = {
@@ -44,6 +58,35 @@ export type FindResult = {
   direct: Bridge[];
   proof_line: string;
   note: string;
+};
+
+export type AccountTargetInput = {
+  id: string;
+  name: string;
+  title: string;
+};
+
+export type AccountTargetResult = {
+  id: string;
+  name: string;
+  title: string;
+  company: string;
+  has_path: boolean;
+  proof_line: string;
+  top_bridge_name: string | null;
+  top_confidence: string | null;
+  bridge_count: number;
+  direct_count: number;
+  find: FindResult;
+};
+
+export type AccountFindResult = {
+  company: string;
+  locale: string;
+  summary_line: string;
+  with_path: number;
+  total_targets: number;
+  targets: AccountTargetResult[];
 };
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
@@ -67,6 +110,10 @@ export function loadExampleSeller() {
 
 export function loadExampleNetwork() {
   return api<Network>("/api/example-network");
+}
+
+export function loadExampleAccount() {
+  return api<{ company: string; targets: AccountTargetInput[] }>("/api/example-account");
 }
 
 export function importNetwork(text: string, existing: Network | null) {
@@ -96,6 +143,21 @@ export function findBridges(body: {
   });
 }
 
+export function findAccount(body: {
+  company: string;
+  targets: AccountTargetInput[];
+  network: Network | null;
+  seller: Seller | null;
+  locale: string;
+  top_k?: number;
+  with_approaches?: boolean;
+}) {
+  return api<AccountFindResult>("/api/find-account", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
 export async function uploadSellerYaml(file: File): Promise<Seller> {
   const fd = new FormData();
   fd.append("file", file);
@@ -103,4 +165,11 @@ export async function uploadSellerYaml(file: File): Promise<Seller> {
   if (!res.ok) throw new Error(await res.text());
   const data = (await res.json()) as { seller: Seller };
   return data.seller;
+}
+
+/** wa.me deep link — user still sends manually. */
+export function whatsAppUrl(phone: string, text: string): string | null {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 10) return null;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }

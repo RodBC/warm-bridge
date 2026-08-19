@@ -6,11 +6,9 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from .approach import approaches_for_ranked
-from .explain import enrich_ranked
+from .accounts import build_find_result, find_account
 from .imports import detect_and_parse, merge_networks, network_from_text
 from .models import ROOT, Target, load_yaml
-from .paths import find_bridges
 from .resolve import resolution_as_dict, resolve_target
 
 app = FastAPI(title="Warm Bridge API", version="0.2.0")
@@ -50,6 +48,23 @@ class ImportRequest(BaseModel):
     existing: dict[str, Any] | None = None
 
 
+class AccountTargetIn(BaseModel):
+    id: str = ""
+    name: str
+    title: str = ""
+
+
+class FindAccountRequest(BaseModel):
+    company: str
+    targets: list[AccountTargetIn]
+    network: dict[str, Any] | None = None
+    network_text: str | None = None
+    seller: dict[str, Any] | None = None
+    locale: str = "pt"
+    top_k: int = 8
+    with_approaches: bool = True
+
+
 def _default_network() -> dict[str, Any]:
     path = ROOT / "data" / "network.yaml"
     if not path.exists():
@@ -85,6 +100,30 @@ def example_seller() -> dict[str, Any]:
 @app.get("/api/example-network")
 def example_network() -> dict[str, Any]:
     return load_yaml(ROOT / "profile" / "example.network.yaml")
+
+
+@app.get("/api/example-account")
+def example_account() -> dict[str, Any]:
+    return load_yaml(ROOT / "profile" / "example.account.yaml")
+
+
+@app.post("/api/find-account")
+def api_find_account(req: FindAccountRequest) -> dict[str, Any]:
+    if not req.company.strip():
+        raise HTTPException(400, "Nome da conta/empresa é obrigatório")
+    if not req.targets:
+        raise HTTPException(400, "Adicione pelo menos um tomador de decisão")
+    network = _resolve_network(req.network, req.network_text)
+    seller = req.seller or _default_seller()
+    return find_account(
+        network=network,
+        seller=seller,
+        company=req.company,
+        targets=[t.model_dump() for t in req.targets],
+        locale=req.locale or "pt",
+        top_k=req.top_k,
+        with_approaches=req.with_approaches,
+    )
 
 
 @app.post("/api/import-network")
@@ -127,61 +166,14 @@ def api_find(req: FindRequest) -> dict[str, Any]:
     network = _resolve_network(req.network, req.network_text)
     seller = req.seller or _default_seller()
     target = Target(name=req.target.name, company=req.target.company, title=req.target.title)
-    locale = req.locale or "pt"
-
-    resolution = resolve_target(network, target)
-    ranked = find_bridges(network, target, top_k=req.top_k)
-    enriched = enrich_ranked(ranked, target, locale=locale)
-
-    bridges = [e for e in enriched if e["bucket"] == "bridge"]
-    directs = [e for e in enriched if e["bucket"] == "direct"]
-
-    approaches: list[dict[str, Any]] = []
-    if req.with_approaches and ranked:
-        approaches = approaches_for_ranked(seller, target, ranked, locale=locale)
-        by_id = {a["contact_id"]: a for a in approaches}
-        for e in enriched:
-            draft = by_id.get(e["contact_id"])
-            if draft:
-                e["message"] = draft["message"]
-
-    return {
-        "target": target.__dict__,
-        "locale": locale,
-        "resolution": resolution_as_dict(resolution),
-        "counts": {
-            "network": len(network.get("contacts") or []),
-            "bridges": len(bridges),
-            "direct": len(directs),
-        },
-        "bridges": bridges,
-        "direct": directs,
-        "proof_line": _proof_line(bridges, directs, target, locale),
-        "note": (
-            "Você envia a mensagem. O produto é achar a ponte + o pedido certo — "
-            "não disparar spam pela sua rede."
-        ),
-    }
-
-
-def _proof_line(
-    bridges: list[dict[str, Any]],
-    directs: list[dict[str, Any]],
-    target: Target,
-    locale: str,
-) -> str:
-    if bridges:
-        top = bridges[0]
-        if locale == "en":
-            return f"Best path: {top['path_label']} · confidence {top['confidence']} · mode {top['mode']}"
-        return f"Melhor caminho: {top['path_label']} · confiança {top['confidence']} · modo {top['mode']}"
-    if directs:
-        if locale == "en":
-            return f"You already have {target.name} in your graph — message them directly."
-        return f"Você já tem {target.name} na rede — aborde direto."
-    if locale == "en":
-        return "No warm path found yet — add notes, phone contacts, or company tags and retry."
-    return "Nenhuma ponte quente ainda — acrescente notas, contatos do celular ou tags de empresa e tente de novo."
+    return build_find_result(
+        network=network,
+        seller=seller,
+        target=target,
+        locale=req.locale or "pt",
+        top_k=req.top_k,
+        with_approaches=req.with_approaches,
+    )
 
 
 @app.post("/api/upload-seller")

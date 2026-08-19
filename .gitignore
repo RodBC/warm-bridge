@@ -21,6 +21,7 @@ build/
 # Web
 web/node_modules/
 web/dist/
+*.tsbuildinfo
 
 # OS / editor
 .DS_Store

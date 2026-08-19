@@ -31,6 +31,8 @@ class NetworkSource(Protocol):
 Backends today: LinkedIn Connections CSV, phone CSV, paste cards.  
 Later: vCard, Google OAuth, browser-assist (yellow, private-first).
 
+Ownership of `imports.py` (+ source tiers): `docs/AI_BUILD_MAP.md` §4 / §7.
+
 ## Messaging
 
 Drafts from `approach.py`. User sends on WhatsApp/LinkedIn. Never automate blast from API.

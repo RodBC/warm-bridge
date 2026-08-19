@@ -5,6 +5,7 @@ import json
 import sys
 from pathlib import Path
 
+from .accounts import build_find_result, find_account
 from .approach import approaches_for_ranked
 from .explain import enrich_ranked
 from .imports import detect_and_parse, network_from_text
@@ -51,18 +52,20 @@ def cmd_find(args: argparse.Namespace) -> int:
     target = _target_from_args(args)
     locale = args.locale or "pt"
     ranked = find_bridges(network, target, top_k=args.top_k)
-    enriched = enrich_ranked(ranked, target, locale=locale)
     resolution = resolve_target(network, target)
-    payload = {
-        "target": target.__dict__,
-        "resolution": {
-            "status": resolution.status,
-            "contact_id": resolution.contact_id,
-            "score": resolution.score,
-            "rationale": resolution.rationale,
-        },
-        "bridges": [e for e in enriched if e["bucket"] == "bridge"],
-        "direct": [e for e in enriched if e["bucket"] == "direct"],
+    payload = build_find_result(
+        network=network,
+        seller=load_yaml(_resolve_seller(args.seller)),
+        target=target,
+        locale=locale,
+        top_k=args.top_k or 8,
+        with_approaches=False,
+    )
+    payload["resolution"] = {
+        "status": resolution.status,
+        "contact_id": resolution.contact_id,
+        "score": resolution.score,
+        "rationale": resolution.rationale,
     }
     print(json.dumps(payload, indent=2, ensure_ascii=False))
 
@@ -184,6 +187,55 @@ def cmd_eval(_: argparse.Namespace) -> int:
                 if not need.issubset(types):
                     ok = False
                     detail.append(f"types={types} need⊆{need}")
+
+        if "expect_tutor_level" in case and "expect_bridge_id" in case:
+            bid = case["expect_bridge_id"]
+            if bid in by_id:
+                enriched = enrich_ranked([by_id[bid]], target, locale="pt")
+                level = enriched[0].get("tutor", {}).get("level")
+                if level != case["expect_tutor_level"]:
+                    ok = False
+                    detail.append(f"tutor level={level} expected={case['expect_tutor_level']}")
+
+        if case.get("check") == "mode_high_trust_intro":
+            ana = by_id.get("c_ana")
+            if not ana or ana.mode not in ("ask_intro", "peer_forward"):
+                ok = False
+                detail.append(f"c_ana mode={getattr(ana, 'mode', None)}")
+            elif ana:
+                enriched = enrich_ranked([ana], target, locale="pt")
+                if enriched[0].get("tutor", {}).get("level") != "yes":
+                    ok = False
+                    detail.append("c_ana tutor not yes")
+
+        if case.get("check") == "mode_low_trust_soft":
+            edu = by_id.get("c_edu")
+            if not edu or edu.mode in ("ask_intro",):
+                ok = False
+                detail.append(f"c_edu mode={getattr(edu, 'mode', None)}")
+            elif edu:
+                enriched = enrich_ranked([edu], target, locale="pt")
+                if enriched[0].get("tutor", {}).get("level") not in ("soft", "no"):
+                    ok = False
+                    detail.append(f"c_edu tutor={enriched[0].get('tutor', {}).get('level')}")
+
+        if case.get("check") == "account_multi_target":
+            account = load_yaml(ROOT / "profile" / "example.account.yaml")
+            seller = load_yaml(ROOT / "profile" / "example.seller.yaml")
+            out = find_account(
+                network=network,
+                seller=seller,
+                company=account["company"],
+                targets=account["targets"],
+                locale="pt",
+                with_approaches=False,
+            )
+            if out["total_targets"] < 2:
+                ok = False
+                detail.append(f"targets={out['total_targets']}")
+            if out["with_path"] < 2:
+                ok = False
+                detail.append(f"with_path={out['with_path']}")
 
         status = "PASS" if ok else "FAIL"
         print(f"{status}  {case['id']}" + (f"  ({'; '.join(detail)})" if detail else ""))

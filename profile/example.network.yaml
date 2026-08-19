@@ -13,6 +13,7 @@ contacts:
     schools: []
     past_companies: ["Hospital Exemplo"]
     notes: "Colega de época do Hospital Exemplo; ainda fala com compras da Acme."
+    phone: "+55 19 99876-5432"
     tags: [compras, interior-sp]
 
   - id: c_bruno
@@ -26,6 +27,7 @@ contacts:
     schools: []
     past_companies: []
     notes: "Indica bem; conhece Marina Costa de eventos da associação."
+    phone: "+55 11 98765-4321"
     tags: [network-forte]
 
   - id: c_diana

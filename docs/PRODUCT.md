@@ -87,7 +87,7 @@ Intake stays user-owned / green-tier. Suggestions enrich *how to use and grow* t
 
 - User imports Connections.csv or phone CSV → names a target → sees path proof in <2 minutes  
 - User copies a WhatsApp ask and sends manually  
-- AI agents consistently update `docs/context/` without being reminded twice  
+- AI agents consistently update `docs/context/` and extend `docs/AI_BUILD_MAP.md` on new layers without being reminded twice  
 
 ## Explicit non-goals (6 months)
 

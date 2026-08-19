@@ -1,0 +1,14 @@
+# Fictional account workspace — several buyers at one company.
+# Private copies: data/account.yaml (gitignored) when users save locally.
+
+company: Acme Saúde
+targets:
+  - id: t_marina
+    name: Marina Costa
+    title: Diretora de Compras
+  - id: t_farmacia
+    name: Paulo Almeida
+    title: Gerente de Farmácia
+  - id: t_clinico
+    name: Ricardo Mendes
+    title: Diretor Clínico

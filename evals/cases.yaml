@@ -33,14 +33,39 @@ cases:
     expect_bridge_id: c_marina
     expect_types_include: [direct]
 
+  - id: tutor_high_trust_yes
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    expect_bridge_id: c_ana
+    expect_tutor_level: "yes"
+
+  - id: tutor_low_trust_no
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    expect_bridge_id: c_edu
+    expect_tutor_level: "no"
+
   - id: mode_high_trust_intro
-    check: >
-      strength=high + same_company → mode ask_intro (or peer_forward), never ask_permission.
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    check: mode_high_trust_intro
 
   - id: mode_low_trust_soft
-    check: >
-      strength=low → mode ask_permission or ask_intel, never hard ask_intro.
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    check: mode_low_trust_soft
 
-  - id: no_invention
-    check: >
-      Approach text must not invent employers, events, or closeness absent from contact notes.
+  - id: account_multi_target
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    check: account_multi_target

@@ -37,4 +37,5 @@ Ship only if it improves at least one:
 - Vector search / pretty graph first? **No** — wedge path proof first; spider-web UI later and must stay actionable.  
 - Ecosystem NET (tracker + radar + graph)? **Yes as vision**; sequence after outcome logging.  
 
-Read `docs/PRODUCT.md` (esp. Ecosystem arc) before changing tiers or positioning.
+Read `docs/PRODUCT.md` (esp. Ecosystem arc) before changing tiers or positioning.  
+Code ownership: `docs/AI_BUILD_MAP.md`. Account workspace: `accounts.py` + `/api/find-account` + UI account mode.

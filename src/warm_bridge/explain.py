@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import Any
 
 from .models import RankedBridge, Target
+from .tutor import attach_tutor
 
 
 def confidence_band(score: float, strength: str, types: list[str]) -> str:
@@ -147,4 +148,6 @@ def enrich_ranked(
                 "sources": b.contact.get("sources") or [],
             }
         )
+    for row in out:
+        attach_tutor(row, locale=locale)
     return out

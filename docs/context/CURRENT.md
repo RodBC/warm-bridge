@@ -20,11 +20,12 @@ Loop:
 ## What exists now
 
 - Playbook: `playbook/bridge-types.yaml`, `modes.yaml`, `approach-rules.md`, `structure.md`  
-- Core Python: import / resolve / paths / explain / approach  
-- API: FastAPI on `:8788` (`warm-bridge serve`)  
-- UI: Vite React on `:5174` (`web/`) — Rede → Alvo → Pontes → Pedir  
+- Core Python: import / resolve / paths / explain / tutor / accounts / approach  
+- API: FastAPI on `:8788` — `/api/find`, `/api/find-account`, …  
+- UI: send-ready workspace + **account mode** (vários alvos por empresa), localStorage v2  
 - CLI: `find`, `approach`, `import`, `eval`, `profile`, `serve`  
 - AI contract: `AGENTS.md`, `.cursor/rules/`, `.cursor/skills/`, this context system  
+- **Code archaeology for AIs:** `docs/AI_BUILD_MAP.md` (commit layers, module map, where-to-edit)  
 - Samples: `corpus/examples/linkedin-connections-sample.csv`, phone CSV, ask patterns  
 
 ## Decisions locked
@@ -38,14 +39,15 @@ Loop:
 | Separate `direct` vs `bridge` buckets | “You already know them” ≠ “ask someone for intro” |
 | Context must live in git | Chat is ephemeral; SaaS iteration needs memory |
 | Borrow Career Fit funnel + entrep resolution *ideas* only | Don’t fork scrapers or reputation vertical |
+| Code archaeology in `AI_BUILD_MAP.md` | Agents extend ownership tables when adding layers — not chat archaeology |
 
 ## Active priorities (P0 → P2)
 
 1. **P0** Keep context/skills discipline as default agent behavior  
 2. **P0** Validate ranking with a **real** Connections/phone export (parents / field seller)  
-3. **P1** Strength tutoring UX (“posso pedir intro pra essa pessoa?”)  
-4. **P1** Account / multi-target workspace (several buyers at one company)  
-5. **P1** Persist network in browser session / local file without YAML friction  
+3. **P1** ~~Strength tutoring UX~~ — shipped in send-ready workspace (`tutor.py` + ask dock)  
+4. **P1** ~~Account / multi-target workspace~~ — shipped (`accounts.py`, `/api/find-account`, UI account mode)  
+5. **P1** ~~Persist network in browser session~~ — shipped (`web/src/storage.ts` v2)  
 6. **P2** Optional LLM polish behind `playbook/approach-rules.md`  
 7. **P2** Outcome / reach logging (DM reached? bridge helped? intro landed?) — foundation for NET memory  
 8. **Later** Opportunity radar: same-city café, common-friend/ex-colleague setup, events, LinkedIn topic posts, territory underuse  
@@ -92,6 +94,6 @@ When updating this file, keep sections above and refresh **Last session**:
 ### Last session
 
 - Date: 2026-08-18  
-- Done: Locked ecosystem / NET vision into PRODUCT + ARCHITECTURE + CURRENT (tracker, spider-web, opportunity radar, UX bar); kept wedge-first sequencing  
+- Done: Account workspace — `accounts.py` + `build_find_result` refactor; `/api/find-account` + example.account.yaml; UI mode toggle (alvo único / conta); roster with proof per buyer; storage v2; eval `account_multi_target`  
 - Blocked: none  
-- Next exact task: Run real-CSV validation (import one seller network → one real target → judge if #1 bridge matches human instinct)  
+- Next exact task: Real CSV validation (import one seller network → one real target → judge if #1 bridge matches human instinct)  

@@ -1,6 +1,7 @@
 # Architecture & critical path — Warm Bridge
 
-> AIs: also read `docs/context/CURRENT.md` and follow `AGENTS.md`. After changes, update context + daily log.
+> AIs: also read `docs/context/CURRENT.md` and follow `AGENTS.md`. After changes, update context + daily log.  
+> For **where code lives and why** (commit ledger, module ownership, extension cheat sheet), read [`docs/AI_BUILD_MAP.md`](AI_BUILD_MAP.md).
 
 ## Product thesis
 
