@@ -24,7 +24,7 @@ History is short and intentional. Treat each commit as a **layer**, not a random
 | `4d52cf2` | `docs: lock ecosystem NET vision into product planning` | **North-star expansion** | Capture long arc (reach tracker, spider-web, opportunity radar, friendly UX) while keeping wedge-first sequence explicit. |
 | `821f3a2` | `docs: sequence NET long-arc in AGENTS north star` | **Contract alignment** | Put NET sequencing in AGENTS so agents don’t build radar/graph ahead of the wedge. |
 | `4c4f8f9` | `feat: send-ready workspace and account multi-target map` | **Wedge UX + account map** | Strength tutoring, localStorage session, ask dock, `accounts.py` + `/api/find-account` — one commit (files were entangled). |
-| *(pending)* | `feat: outcome / reach logging` | **NET memory foundation** | Browser-first reach history + status chips; thin `POST /api/outcomes` validate/echo; no server PII store. |
+| `c12b62c` | `feat: outcome / reach logging` | **NET memory foundation** | Browser-first reach history + status chips; thin `POST /api/outcomes` validate/echo; no server PII store. |
 
 **Invariant across all layers:** user-owned CSV/paste intake · deterministic score → explain → template ask · you send · no LinkedIn harvester · no fake `% fit` · direct ≠ bridge buckets.
 
