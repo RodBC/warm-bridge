@@ -23,8 +23,8 @@ History is short and intentional. Treat each commit as a **layer**, not a random
 | `51040e9` | `docs: point ARCHITECTURE at the AI context loop` | **Doc glue** | Make ARCHITECTURE point agents at CURRENT/AGENTS so systems work doesn’t skip memory. |
 | `4d52cf2` | `docs: lock ecosystem NET vision into product planning` | **North-star expansion** | Capture long arc (reach tracker, spider-web, opportunity radar, friendly UX) while keeping wedge-first sequence explicit. |
 | `821f3a2` | `docs: sequence NET long-arc in AGENTS north star` | **Contract alignment** | Put NET sequencing in AGENTS so agents don’t build radar/graph ahead of the wedge. |
-| *(pending)* | `feat: send-ready workspace — tutor, persist, ask dock` | **Wedge UX + P1 tutoring** | Strength tutoring on API; localStorage session; proof hero + fixed ask dock; copy + `wa.me` — time-to-ask and Pro feel without NET. |
-| *(pending)* | `feat: account workspace — multi-target per company` | **Pro-tier account map** | `accounts.py` + `/api/find-account`; UI mode toggle; roster with proof per buyer; session v2 persist. |
+| `4c4f8f9` | `feat: send-ready workspace and account multi-target map` | **Wedge UX + account map** | Strength tutoring, localStorage session, ask dock, `accounts.py` + `/api/find-account` — one commit (files were entangled). |
+| *(pending)* | `feat: outcome / reach logging` | **NET memory foundation** | Browser-first reach history + status chips; thin `POST /api/outcomes` validate/echo; no server PII store. |
 
 **Invariant across all layers:** user-owned CSV/paste intake · deterministic score → explain → template ask · you send · no LinkedIn harvester · no fake `% fit` · direct ≠ bridge buckets.
 
@@ -39,7 +39,7 @@ playbook/ + profile/ + corpus/ + prompts/     ← IP & rules (edit carefully)
         ↓
 src/warm_bridge/{models,paths,approach}      ← score + draft path
         ↓
-src/warm_bridge/{imports,resolve,explain,tutor,accounts}  ← ingest + identity + proof + tutoring + account map
+src/warm_bridge/{imports,resolve,explain,tutor,accounts,outcomes}  ← ingest + identity + proof + tutoring + account map + reach schema
         ↓
 src/warm_bridge/{cli,api}                    ← entrypoints (same core)
         ↓
@@ -91,6 +91,7 @@ Private PII stays in `data/` (gitignored) or the user’s machine — never in c
 | `explain.py` | Path proof + confidence bands + why | `enrich_ranked`, `confidence_band`, `path_label` | Pulse-style “show the proof”; no fake % |
 | `tutor.py` | Strength tutoring (“posso pedir intro?”) | `strength_advice`, `attach_tutor` | Plain-language gates from strength+mode; never invent closeness |
 | `accounts.py` | Account workspace (multi-target) | `build_find_result`, `find_account`, `proof_line` | One find pipeline; map N buyers at same company |
+| `outcomes.py` | Reach event validate/normalize | `ALLOWED_STATUSES`, `normalize_event`, `validate_events` | Schema for NET memory; never invent replies; no server persist yet |
 | `cli.py` | argparse commands | `find`, `approach`, `import`, `eval`, `profile`, `serve` | Power-user + scripts |
 | `api.py` | FastAPI on `:8788` | `/api/find`, `/api/import-network`, … | Thin HTTP over the same functions as CLI |
 | `__main__.py` | `python -m warm_bridge` | — | Package entry |
@@ -124,6 +125,7 @@ raw CSV/paste → imports.detect_and_parse → contacts[] → (CLI writes data/n
 | POST | `/api/find` | `build_find_result` |
 | POST | `/api/find-account` | `find_account` (N targets, shared company) |
 | GET | `/api/example-account` | load `profile/example.account.yaml` |
+| POST | `/api/outcomes` | `validate_events` — echo only; client is source of truth |
 | POST | `/api/upload-seller` | YAML validate → return seller (no server persist yet) |
 
 CORS allows Vite `:5174` (and `:5173` sibling). Adding a new capability: implement in a core module first, then expose CLI + one API route + `web/src/api.ts` helper.
@@ -134,14 +136,15 @@ CORS allows Vite `:5174` (and `:5173` sibling). Adding a new capability: impleme
 
 | File | Role | Why |
 |------|------|-----|
-| `src/App.tsx` | Send-ready workspace funnel | Proof hero, bridge list, strength tutor, fixed ask dock (copy + WhatsApp) |
+| `src/App.tsx` | Send-ready workspace funnel | Proof hero, bridge list, strength tutor, fixed ask dock (copy + WhatsApp + outcome chips) |
 | `src/api.ts` | Typed `fetch` + `whatsAppUrl` | No business logic; mirror API contracts |
 | `src/storage.ts` | `localStorage` session v2 | Persist network/seller/target/account roster + account map results |
+| `src/outcomes.ts` | Reach history (last 20) | Browser-first NET memory; auto-log `copied`; status chips |
 | `src/tutor.ts` | Client fallback for `tutor` payload | Mirrors server when API older |
 | `src/styles.css` | Field-first layout + motion | Sticky setup, fixed ask dock, slide-up proof |
 | `vite.config.ts` | Dev server + API proxy | Proxies `/api` → `:8788` |
 
-**UI status:** Send-ready wedge + **account workspace** (mode toggle, map whole company, drill into per-target bridges/asks). No reach tracker or spider-web NET yet.
+**UI status:** Send-ready wedge + **account workspace** + **reach history** (list, last 20). No spider-web NET yet.
 
 **Buckets in UI:** `bridges` vs `direct` come from API enrichment — keep them visually separate (“você já conhece” ≠ “pedir intro”).
 
@@ -165,7 +168,7 @@ CORS allows Vite `:5174` (and `:5173` sibling). Adding a new capability: impleme
 
 | Skill | Edit these first |
 |-------|------------------|
-| `warm-bridge-bridges` | `playbook/*`, `paths.py`, `resolve.py`, `explain.py`, `tutor.py`, `approach.py`, `evals/`, `prompts/` |
+| `warm-bridge-bridges` | `playbook/*`, `paths.py`, `resolve.py`, `explain.py`, `tutor.py`, `approach.py`, `outcomes.py`, `evals/`, `prompts/` |
 | `warm-bridge-sources` | `imports.py`, `docs/sources.yaml`, `docs/entrep-transfer.md`, future adapters |
 | `warm-bridge-product` | `PRODUCT.md`, `ARCHITECTURE.md`, `CURRENT.md`, `accounts.py` for account scope — not random features |
 | `warm-bridge-context` | `CURRENT.md` + daily log (+ this map when layers change) |
@@ -185,7 +188,7 @@ CORS allows Vite `:5174` (and `:5173` sibling). Adding a new capability: impleme
 | New API capability | core module → `api.py` → `web/src/api.ts` → `App.tsx` | UI-only duplicate of Python logic |
 | Strength tutoring UX | `tutor.py` + `explain.enrich_ranked` + `web/src/tutor.ts` + ask dock in `App.tsx` | Invent closeness in UI copy |
 | Multi-target account workspace | `accounts.py` → `/api/find-account` → `App.tsx` account mode + `storage.ts` v2 | Separate scoring per target in UI |
-| Reach / outcome tracker (NET memory) | **new** models + store — design in PRODUCT/ARCHITECTURE first | Stuff into `RankedBridge` |
+| Reach / outcome tracker (NET memory) | `outcomes.py` + `web/src/outcomes.ts` + ask-dock chips + Histórico; `POST /api/outcomes` validate only | Inventing replies; server PII DB this phase |
 | Opportunity radar / spider-web | Later NET phase — after outcome logging | Pretty graph with no next action |
 | vCard / Google Contacts | green adapter in `imports.py` when ready | Password scrape of Google |
 

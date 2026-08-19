@@ -24,7 +24,7 @@ Ship only if it improves at least one:
 ## Moat order
 
 1. Bridge playbook + anti-spam-through-friend craft  
-2. Outcome data + reach tracker (DM / bridge / intro history)  
+2. Outcome data + reach tracker (DM / bridge / intro history) — **shipped browser-first; thicken before NET UI**  
 3. Notes / strength tutoring + suggestion quality (café, events, setup helpers)  
 4. Trust (no account-burning scrapers)  
 5. Network compounding (NET densifies with use)
@@ -35,7 +35,7 @@ Ship only if it improves at least one:
 - Auto-send WhatsApp? **No**.  
 - More enrichment? **User-owned imports first**; green/yellow only per `docs/sources.yaml`.  
 - Vector search / pretty graph first? **No** — wedge path proof first; spider-web UI later and must stay actionable.  
-- Ecosystem NET (tracker + radar + graph)? **Yes as vision**; sequence after outcome logging.  
+- Ecosystem NET (tracker + radar + graph)? **Yes as vision**; sequence: **outcomes before NET UI** (radar/spider-web).  
 
 Read `docs/PRODUCT.md` (esp. Ecosystem arc) before changing tiers or positioning.  
-Code ownership: `docs/AI_BUILD_MAP.md`. Account workspace: `accounts.py` + `/api/find-account` + UI account mode.
+Code ownership: `docs/AI_BUILD_MAP.md`. Account workspace: `accounts.py` + `/api/find-account` + UI account mode. Outcomes: `outcomes.py` + `web/src/outcomes.ts`.

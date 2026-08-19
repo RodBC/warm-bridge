@@ -30,8 +30,10 @@ Follow `playbook/approach-rules.md`, `structure.md`, `bridge-types.yaml`, `modes
 
 Account map (N targets, one company): `accounts.find_account` → loops `build_find_result` — do not fork scoring in UI.
 
+Reach / outcomes (NET memory foundation): `outcomes.normalize_event` + `web/src/outcomes.ts` — allowed statuses only; auto-log `copied` on Copiar/WhatsApp; user chips for Enviei / Respondeu / Intro feita / Sem resposta. Do not invent replies. API `POST /api/outcomes` validates/echoes; browser is source of truth.
+
 Full ownership map: `docs/AI_BUILD_MAP.md` §4. Tutoring: `tutor.py` → attached in `enrich_ranked`.
 
 ## Evals
 
-Run `warm-bridge eval` after changing weights, signals, or mode selection.
+Run `warm-bridge eval` after changing weights, signals, mode selection, or outcome status schema.

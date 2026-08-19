@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from .accounts import build_find_result, find_account
 from .imports import detect_and_parse, merge_networks, network_from_text
 from .models import ROOT, Target, load_yaml
+from .outcomes import OutcomeError, validate_events
 from .resolve import resolution_as_dict, resolve_target
 
 app = FastAPI(title="Warm Bridge API", version="0.2.0")
@@ -188,6 +189,16 @@ async def upload_seller(file: UploadFile = File(...)) -> dict[str, Any]:
     if not isinstance(data, dict) or "identity" not in data:
         raise HTTPException(400, "Seller precisa do bloco identity")
     return {"ok": True, "seller": data}
+
+
+@app.post("/api/outcomes")
+def api_outcomes(payload: dict[str, Any] | list[Any]) -> dict[str, Any]:
+    """Validate/echo reach events. Browser localStorage remains source of truth."""
+    try:
+        events = validate_events(payload)
+    except OutcomeError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    return {"ok": True, "events": events, "note": "Validated only — not persisted on server."}
 
 
 def run() -> None:

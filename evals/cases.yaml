@@ -69,3 +69,10 @@ cases:
       company: Acme Saúde
       title: Diretora de Compras
     check: account_multi_target
+
+  - id: outcome_statuses_allowed
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    check: outcome_statuses

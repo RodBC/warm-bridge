@@ -546,6 +546,8 @@ textarea {
   backdrop-filter: blur(14px);
   padding: 0.85rem 1rem 1rem;
   box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.35);
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
 }
 
 @media (min-width: 900px) {
@@ -671,6 +673,137 @@ textarea {
   margin: 0.45rem 0 0;
   font-size: 0.78rem;
   color: var(--muted);
+}
+
+.outcome-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.65rem;
+}
+
+.outcome-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 0.15rem;
+}
+
+.chip {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 0.28rem 0.55rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+.chip.on {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.outcome-latest {
+  margin: 0.4rem 0 0;
+  font-size: 0.78rem;
+  color: var(--ok);
+}
+
+.history-toggle.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.history-panel {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.history-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.history-head h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.15rem;
+}
+
+.history-head p {
+  margin: 0;
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.history-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.history-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.55rem;
+  align-items: baseline;
+  font-size: 0.85rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.history-list li:last-child {
+  border-bottom: none;
+}
+
+.history-status {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.78rem;
+}
+
+.history-who {
+  color: var(--ink);
+}
+
+.history-list time {
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .history-list li {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
 }
 
 .site-footer {

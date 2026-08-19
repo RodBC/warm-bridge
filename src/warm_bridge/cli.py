@@ -10,6 +10,7 @@ from .approach import approaches_for_ranked
 from .explain import enrich_ranked
 from .imports import detect_and_parse, network_from_text
 from .models import ROOT, Target, load_yaml
+from .outcomes import ALLOWED_STATUSES, OutcomeError, normalize_event
 from .paths import find_bridges
 from .resolve import resolve_target
 
@@ -237,6 +238,31 @@ def cmd_eval(_: argparse.Namespace) -> int:
                 ok = False
                 detail.append(f"with_path={out['with_path']}")
 
+        if case.get("check") == "outcome_statuses":
+            sample = {
+                "targetName": "Marina Costa",
+                "bridgeId": "c_ana",
+                "bridgeName": "Ana Souza",
+                "status": "sent",
+            }
+            try:
+                normalized = normalize_event(sample)
+                if normalized["status"] not in ALLOWED_STATUSES:
+                    ok = False
+                    detail.append("normalized status not allowed")
+            except OutcomeError as exc:
+                ok = False
+                detail.append(f"valid event rejected: {exc}")
+            try:
+                normalize_event({**sample, "status": "invented_reply"})
+                ok = False
+                detail.append("invented status accepted")
+            except OutcomeError:
+                pass
+            if "copied" not in ALLOWED_STATUSES or "intro_landed" not in ALLOWED_STATUSES:
+                ok = False
+                detail.append("missing core statuses")
+
         status = "PASS" if ok else "FAIL"
         print(f"{status}  {case['id']}" + (f"  ({'; '.join(detail)})" if detail else ""))
         if not ok:
@@ -274,6 +300,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p_f = sub.add_parser("find", help="Rank bridges to a target")
     add_target_args(p_f)
+    p_f.add_argument("--seller", default=None)
     p_f.add_argument("--out", default=None)
     p_f.set_defaults(func=cmd_find)
 

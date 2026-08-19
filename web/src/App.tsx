@@ -16,6 +16,16 @@ import {
   type Seller,
 } from "./api";
 import {
+  CHIP_STATUSES,
+  STATUS_LABEL_PT,
+  clearOutcomes,
+  formatReachWhen,
+  loadOutcomes,
+  logReach,
+  type ReachEvent,
+  type ReachStatus,
+} from "./outcomes";
+import {
   clearSession,
   defaultAccount,
   loadSession,
@@ -86,7 +96,13 @@ export default function App() {
   const [status, setStatus] = useState("");
   const [copied, setCopied] = useState(false);
   const [restored, setRestored] = useState(false);
+  const [outcomes, setOutcomes] = useState<ReachEvent[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const askRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setOutcomes(loadOutcomes());
+  }, []);
 
   useEffect(() => {
     const session = loadSession();
@@ -279,8 +295,32 @@ export default function App() {
   async function copyMessage(text: string) {
     await navigator.clipboard.writeText(text);
     setCopied(true);
+    recordReach("copied");
     setStatus("Mensagem copiada — cole no WhatsApp / LinkedIn");
     window.setTimeout(() => setCopied(false), 2200);
+  }
+
+  function recordReach(status: ReachStatus) {
+    if (!selected || !result) return;
+    const next = logReach({
+      status,
+      targetName: result.target.name,
+      bridgeId: selected.contact_id,
+      bridgeName: selected.name,
+      ...(workspaceMode === "account" && accountCompany.trim()
+        ? { accountCompany: accountCompany.trim() }
+        : {}),
+    });
+    setOutcomes(next);
+  }
+
+  function onOpenWhatsApp() {
+    recordReach("copied");
+  }
+
+  function clearReachHistory() {
+    clearOutcomes();
+    setOutcomes([]);
   }
 
   function resetSession() {
@@ -318,6 +358,9 @@ export default function App() {
     selected?.message && selected.phone
       ? whatsAppUrl(selected.phone, selected.message)
       : null;
+  const latestForSelected = selected
+    ? outcomes.find((e) => e.bridgeId === selected.contact_id)
+    : null;
 
   const stepNetwork = (network?.contacts?.length ?? 0) > 0;
   const stepTarget =
@@ -345,7 +388,46 @@ export default function App() {
           <span className={`step ${stepBridges ? "on" : ""}`}>Pontes</span>
           <span className={`step ${stepAsk ? "on" : ""}`}>Pedir</span>
         </nav>
+        <button
+          type="button"
+          className={`btn ghost sm history-toggle ${historyOpen ? "on" : ""}`}
+          onClick={() => setHistoryOpen((o) => !o)}
+        >
+          Histórico{outcomes.length ? ` (${outcomes.length})` : ""}
+        </button>
       </header>
+
+      {historyOpen && (
+        <section className="history-panel animate-in" aria-label="Histórico de alcance">
+          <div className="history-head">
+            <h2>Histórico</h2>
+            <p>Últimos alcances neste navegador — você marca o status.</p>
+            {outcomes.length > 0 && (
+              <button type="button" className="btn ghost sm" onClick={clearReachHistory}>
+                Limpar histórico
+              </button>
+            )}
+          </div>
+          {outcomes.length === 0 ? (
+            <p className="history-empty">
+              Ainda vazio. Copie uma mensagem ou marque Enviei / Intro feita no painel Pedir.
+            </p>
+          ) : (
+            <ul className="history-list">
+              {outcomes.map((ev) => (
+                <li key={ev.id}>
+                  <span className="history-status">{STATUS_LABEL_PT[ev.status]}</span>
+                  <span className="history-who">
+                    {ev.bridgeName} → {ev.targetName}
+                    {ev.accountCompany ? ` · ${ev.accountCompany}` : ""}
+                  </span>
+                  <time dateTime={ev.at}>{formatReachWhen(ev.at)}</time>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       {heroLine && (
         <section className="proof-hero animate-in" key={heroLine}>
@@ -669,7 +751,13 @@ export default function App() {
                 {copied ? "Copiado ✓" : "Copiar mensagem"}
               </button>
               {waLink && (
-                <a className="btn wa" href={waLink} target="_blank" rel="noreferrer">
+                <a
+                  className="btn wa"
+                  href={waLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={onOpenWhatsApp}
+                >
                   Abrir WhatsApp
                 </a>
               )}
@@ -684,6 +772,28 @@ export default function App() {
                 </a>
               )}
             </div>
+            <div className="outcome-chips" role="group" aria-label="Status do alcance">
+              <span className="outcome-label">Status</span>
+              {CHIP_STATUSES.map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  className={`chip ${latestForSelected?.status === st ? "on" : ""}`}
+                  onClick={() => {
+                    recordReach(st);
+                    setStatus(`${STATUS_LABEL_PT[st]} · ${selected.name}`);
+                  }}
+                >
+                  {STATUS_LABEL_PT[st]}
+                </button>
+              ))}
+            </div>
+            {latestForSelected && (
+              <p className="outcome-latest">
+                Último: {STATUS_LABEL_PT[latestForSelected.status]} ·{" "}
+                {formatReachWhen(latestForSelected.at)}
+              </p>
+            )}
             {result && <p className="ask-note">{result.note}</p>}
           </div>
         </aside>

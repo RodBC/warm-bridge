@@ -173,3 +173,22 @@ export function whatsAppUrl(phone: string, text: string): string | null {
   if (digits.length < 10) return null;
   return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
+
+/** Echo/validate reach events — client remains source of truth. */
+export function postOutcomes(body: {
+  events: Array<{
+    id?: string;
+    at?: string;
+    accountCompany?: string;
+    targetName: string;
+    bridgeId: string;
+    bridgeName: string;
+    status: string;
+    note?: string;
+  }>;
+}) {
+  return api<{ ok: boolean; events: unknown[]; note: string }>("/api/outcomes", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}

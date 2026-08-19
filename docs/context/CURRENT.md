@@ -2,7 +2,7 @@
 
 > **AIs: read this fully before coding. Update this file before you end a session with meaningful changes.**
 
-**Last updated:** 2026-08-18  
+**Last updated:** 2026-08-19  
 **Repo:** `/home/decastro/studies/warm-bridge` (own git → `origin` github.com/RodBC/warm-bridge)  
 **Sibling SaaS:** `/home/decastro/studies/career-fit` (same AI-context discipline; different JTBD)  
 **Inspiration (patterns only):** `/home/decastro/entrep` identity resolution + Pulse “show the proof”
@@ -20,13 +20,14 @@ Loop:
 ## What exists now
 
 - Playbook: `playbook/bridge-types.yaml`, `modes.yaml`, `approach-rules.md`, `structure.md`  
-- Core Python: import / resolve / paths / explain / tutor / accounts / approach  
-- API: FastAPI on `:8788` — `/api/find`, `/api/find-account`, …  
-- UI: send-ready workspace + **account mode** (vários alvos por empresa), localStorage v2  
-- CLI: `find`, `approach`, `import`, `eval`, `profile`, `serve`  
+- Core Python: import / resolve / paths / explain / tutor / accounts / approach / **outcomes**  
+- API: FastAPI on `:8788` — `/api/find`, `/api/find-account`, `/api/outcomes`, …  
+- UI: send-ready workspace + account mode + **reach history** (localStorage, status chips)  
+- CLI: `find` (incl. `--seller`), `approach`, `import`, `eval`, `profile`, `serve`  
 - AI contract: `AGENTS.md`, `.cursor/rules/`, `.cursor/skills/`, this context system  
 - **Code archaeology for AIs:** `docs/AI_BUILD_MAP.md` (commit layers, module map, where-to-edit)  
 - Samples: `corpus/examples/linkedin-connections-sample.csv`, phone CSV, ask patterns  
+- Real CSV checklist: [`docs/CSV_VALIDATION.md`](../CSV_VALIDATION.md) (no PII in repo)
 
 ## Decisions locked
 
@@ -40,16 +41,17 @@ Loop:
 | Context must live in git | Chat is ephemeral; SaaS iteration needs memory |
 | Borrow Career Fit funnel + entrep resolution *ideas* only | Don’t fork scrapers or reputation vertical |
 | Code archaeology in `AI_BUILD_MAP.md` | Agents extend ownership tables when adding layers — not chat archaeology |
+| Outcomes browser-first; API validate/echo only | Foundation for NET memory without server PII yet |
 
 ## Active priorities (P0 → P2)
 
 1. **P0** Keep context/skills discipline as default agent behavior  
-2. **P0** Validate ranking with a **real** Connections/phone export (parents / field seller)  
-3. **P1** ~~Strength tutoring UX~~ — shipped in send-ready workspace (`tutor.py` + ask dock)  
-4. **P1** ~~Account / multi-target workspace~~ — shipped (`accounts.py`, `/api/find-account`, UI account mode)  
+2. **P0** Validate ranking with a **real** Connections/phone export (parents / field seller) — checklist in `docs/CSV_VALIDATION.md`  
+3. **P1** ~~Strength tutoring UX~~ — shipped (`tutor.py` + ask dock)  
+4. **P1** ~~Account / multi-target workspace~~ — shipped (`accounts.py`, `/api/find-account`)  
 5. **P1** ~~Persist network in browser session~~ — shipped (`web/src/storage.ts` v2)  
-6. **P2** Optional LLM polish behind `playbook/approach-rules.md`  
-7. **P2** Outcome / reach logging (DM reached? bridge helped? intro landed?) — foundation for NET memory  
+6. **P1** ~~Outcome / reach logging~~ — shipped (`outcomes.py`, `web/src/outcomes.ts`, Histórico + chips)  
+7. **P2** Optional LLM polish behind `playbook/approach-rules.md` **or** healthtech-path landing — leave open  
 8. **Later** Opportunity radar: same-city café, common-friend/ex-colleague setup, events, LinkedIn topic posts, territory underuse  
 9. **Later** NET UI — spider-web / edge graph, user-friendly (list-first, graph when useful, mobile for field)  
 10. **Later** Team territory graph; CRM export of “who to approach”
@@ -60,7 +62,8 @@ Loop:
 - Whether Team (parents co-selling) ships before LLM polish  
 - vCard / Google Contacts adapter priority vs LinkedIn CSV alone  
 - Cross-link / shared auth with Career Fit later?  
-- How much graph UX in Pro vs Team (spider web can distract from “send the ask”)?
+- How much graph UX in Pro vs Team (spider web can distract from “send the ask”)?  
+- Next after outcomes: LLM polish vs marketing landing?
 
 ## Ideas captured (not yet scoped)
 
@@ -93,7 +96,7 @@ When updating this file, keep sections above and refresh **Last session**:
 
 ### Last session
 
-- Date: 2026-08-18  
-- Done: Account workspace — `accounts.py` + `build_find_result` refactor; `/api/find-account` + example.account.yaml; UI mode toggle (alvo único / conta); roster with proof per buyer; storage v2; eval `account_multi_target`  
-- Blocked: none  
-- Next exact task: Real CSV validation (import one seller network → one real target → judge if #1 bridge matches human instinct)  
+- Date: 2026-08-19  
+- Done: Stabilized send-ready + account layers (`4c4f8f9`); CLI `find --seller`; CSV checklist; outcome/reach logging (browser history + chips + thin `/api/outcomes`)  
+- Blocked: Real CSV validation still needs your export (see `docs/CSV_VALIDATION.md`)  
+- Next exact task: Run real CSV checklist **or** pick P2 (LLM polish vs landing)  
