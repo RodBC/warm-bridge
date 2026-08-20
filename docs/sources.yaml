@@ -1,53 +1,130 @@
 # Network & contact sources — policy tiers
-# green = official/open or user-owned export
-# yellow = cautious / assisted; no login bypass
-# red = ToS-hostile or fragile automation — do not ship in public core
+#
+# Owner lock (2026-08-20): LinkedIn Camoufox session PRIMARY. CSV/paste legacy fallback.
+#
+# green  = preferred / ship (non-scrape)
+# yellow = session scrape (ToS risk on seller account; rate-limit; local)
+# red    = out of product (mass send, inventing data)
 
 sources:
+  linkedin_camoufox_session:
+    tier: yellow
+    notes: >-
+      PRIMARY graph intake. Camoufox persistent profile → mutuals for target → enrich.
+      Auto-login from data/secrets/linkedin_account.yaml. Ban/ToS risk on seller account.
+    enabled: true
+    primary: true
+    module: warm_bridge.linkedin_session
+
+  linkedin_mutuals_for_target:
+    tier: yellow
+    notes: "Mutuals scrape — part of primary linkedin_camoufox_session."
+    enabled: true
+    primary: true
+    module: warm_bridge.linkedin_session.mutuals
+
+  linkedin_profile_enrich:
+    tier: yellow
+    notes: "Session profile enrich — part of primary map."
+    enabled: true
+    primary: true
+    module: warm_bridge.linkedin_session.enrich
+
+  linkedin_account_auto_login:
+    tier: yellow
+    notes: >-
+      Auto session from gitignored linkedin_account.yaml + Gmail OTP / pyotp.
+      Boot on warm-bridge serve. Never password in API/UI.
+    enabled: true
+    primary: true
+    module: warm_bridge.linkedin_session.account
+
+  public_web_research:
+    tier: green
+    notes: >-
+      Public web search on target + company (DuckDuckGo HTML). Cite URL + snippet only.
+      Thickens path proof and ask hooks — never fabricates people or mutual edges.
+    enabled: true
+    primary: true
+    module: warm_bridge.research
+
+  linkedin_url_identity:
+    tier: green
+    notes: "Parse/normalize linkedin.com/in/{slug} for seller + target fields (no fetch)."
+    enabled: true
+    primary: true
+    module: warm_bridge.linkedin
+
   linkedin_connections_csv:
     tier: green
-    notes: "Official LinkedIn member Connections.csv uploaded by user. Parse locally."
+    notes: >-
+      LEGACY fallback — Connections.csv export. Demoted; use Camoufox session instead.
     enabled: true
+    primary: false
     module: warm_bridge.imports.parse_linkedin_connections_csv
 
   phone_csv:
     tier: green
-    notes: "User-exported phone book CSV (name,phone,company,title,notes,strength)."
+    notes: "LEGACY fallback — phone CSV."
     enabled: true
+    primary: false
     module: warm_bridge.imports.parse_phone_csv
 
   user_paste_cards:
     tier: green
-    notes: "Blank-line-separated contact cards pasted by user."
+    notes: "LEGACY fallback — paste contact cards."
     enabled: true
+    primary: false
     module: warm_bridge.imports.parse_contacts_paste
+
+  linkedin_selenium_session:
+    tier: yellow
+    notes: "DEPRECATED alias — Selenium/Chrome legacy backend."
+    enabled: true
+    primary: false
+    module: warm_bridge.linkedin_session
+
+  linkedin_burner_otp:
+    tier: yellow
+    notes: >-
+      Auto-login secrets + Gmail OTP / pyotp. Same file as linkedin_account.yaml.
+      Never commit; never end-user UI password fields.
+    enabled: true
+    primary: true
+    module: warm_bridge.linkedin_session.burner
+
+  example_network_demo:
+    tier: green
+    notes: "Eval/dev fixture only — not default UX."
+    enabled: true
+    primary: false
 
   vcard_export:
     tier: green
-    notes: "Apple/Google vCard — not implemented yet; green when user-owned."
+    notes: "Not implemented."
     enabled: false
 
   google_contacts_oauth:
     tier: green
-    notes: "Official OAuth only if/when built. Never password scrape."
+    notes: "Official OAuth if/when built."
     enabled: false
 
   linkedin_oauth_partner:
     tier: green
-    notes: "Only via official partner APIs if available."
-    enabled: false
-
-  browser_assisted_capture:
-    tier: yellow
-    notes: "User logged-in, user-initiated capture in private tooling — not headless farm in OSS."
-    enabled: false
-
-  linkedin_automated_scrape:
-    tier: red
-    notes: "Banned in public core. ToS, bans, wrong moat."
+    notes: "Official partner API if available."
     enabled: false
 
   mass_whatsapp_send:
     tier: red
-    notes: "Out of product scope. Drafts only; user sends."
+    notes: "Out of scope. Drafts only; user sends."
+    enabled: false
+
+  invent_mutuals:
+    tier: red
+    notes: "Never fabricate bridges from search or scrape. Empty graph → honest empty."
+    enabled: false
+
+  invent_people_from_search:
+    tier: red
+    notes: "Web research cites facts only — never 'Ana probably knows them'."
     enabled: false

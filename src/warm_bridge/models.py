@@ -20,10 +20,11 @@ class Target:
     name: str
     company: str = ""
     title: str = ""
+    linkedin_url: str = ""
 
     @property
     def text(self) -> str:
-        return f"{self.name}\n{self.company}\n{self.title}".lower()
+        return f"{self.name}\n{self.company}\n{self.title}\n{self.linkedin_url}".lower()
 
 
 @dataclass

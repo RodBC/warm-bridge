@@ -1,0 +1,153 @@
+# Lead Police demo graph — REAL public LinkedIn profiles (3S Checkout / E-Deploy ecosystem).
+# Offline fixture for "Ver uma demo!" — labeled as demo; not a live mutuals scrape.
+# Seller: Rodrigo Castro → Target: Sabrina Coelho Godoy.
+# Bridges are real people at 3S Checkout / E-Deploy with working /in/ URLs + unavatar photos.
+# Evals keep using profile/example.network.yaml (Marina / Acme fictional).
+
+contacts:
+  - id: c_beatris
+    name: Beatris Avelino
+    first_name: Beatris
+    sources: [linkedin]
+    company: E-Deploy
+    title: Gerente de RH
+    strength: high
+    last_touch_days: 22
+    schools: []
+    past_companies: []
+    notes: >-
+      Gerente de RH na E-Deploy (mesmo ecossistema da 3S Checkout onde Sabrina Coelho Godoy atua);
+      ponte natural para introdução no time de People.
+    linkedin_url: "https://www.linkedin.com/in/beatris-avelino-09077720/"
+    avatar_url: "https://unavatar.io/linkedin/beatris-avelino-09077720"
+    tags: [same-ecosystem, people, hr]
+
+  - id: c_cintia
+    name: Cintia Monteiro
+    first_name: Cintia
+    sources: [linkedin]
+    company: 3S Checkout
+    title: Analista de Departamento Pessoal
+    strength: high
+    last_touch_days: 30
+    schools: []
+    past_companies: []
+    notes: >-
+      Colega de Departamento Pessoal na 3S Checkout; trabalha no mesmo time de RH que
+      Sabrina Coelho Godoy — forte ponte para intro.
+    linkedin_url: "https://www.linkedin.com/in/cintia-monteiro-45a31a73/"
+    avatar_url: "https://unavatar.io/linkedin/cintia-monteiro-45a31a73"
+    tags: [same-company, people]
+
+  - id: c_monique
+    name: Monique Giovanna
+    first_name: Monique
+    sources: [linkedin]
+    company: 3S Checkout
+    title: Assistente de Departamento Pessoal
+    strength: high
+    last_touch_days: 35
+    schools: []
+    past_companies: []
+    notes: >-
+      Assistente de DP na 3S Checkout; mesma área de Sabrina Coelho Godoy.
+    linkedin_url: "https://www.linkedin.com/in/monique-giovanna-50352b207/"
+    avatar_url: "https://unavatar.io/linkedin/monique-giovanna-50352b207"
+    tags: [same-company, people]
+
+  - id: c_giulia
+    name: Giulia Oliveira Salgado
+    first_name: Giulia
+    sources: [linkedin]
+    company: E-Deploy
+    title: Assistente de Recursos Humanos
+    strength: medium
+    last_touch_days: 45
+    schools: []
+    past_companies: ["E-Deploy"]
+    notes: >-
+      Passou por RH na E-Deploy e interage com posts de vagas da Sabrina Coelho Godoy;
+      ponte de People / recrutamento.
+    linkedin_url: "https://www.linkedin.com/in/giulia-oliveira-salgado-403b5b1b7/"
+    avatar_url: "https://unavatar.io/linkedin/giulia-oliveira-salgado-403b5b1b7"
+    tags: [people, recruiting]
+
+  - id: c_renan
+    name: Renan Robles
+    first_name: Renan
+    sources: [linkedin]
+    company: 3S Checkout
+    title: Gerente de Novos Negócios
+    strength: medium
+    last_touch_days: 50
+    schools: []
+    past_companies: ["E-Deploy"]
+    notes: >-
+      Gerente comercial na 3S Checkout; conhece a operação e o time interno onde Sabrina atua.
+    linkedin_url: "https://www.linkedin.com/in/renanrobles/"
+    avatar_url: "https://unavatar.io/linkedin/renanrobles"
+    tags: [same-company, sales]
+
+  - id: c_arthur
+    name: Arthur Paiva
+    first_name: Arthur
+    sources: [linkedin]
+    company: E-Deploy
+    title: Fullstack Software Engineer
+    strength: medium
+    last_touch_days: 60
+    schools: []
+    past_companies: []
+    notes: >-
+      Engenheiro no produto 3S Checkout; caminho técnico até o time da Sabrina via RH interno.
+    linkedin_url: "https://www.linkedin.com/in/arthur-paiva-2202/"
+    avatar_url: "https://unavatar.io/linkedin/arthur-paiva-2202"
+    tags: [same-ecosystem, engineering]
+
+  - id: c_lucas
+    name: Lucas de Lima
+    first_name: Lucas
+    sources: [linkedin]
+    company: E-Deploy
+    title: Tech Lead
+    strength: medium
+    last_touch_days: 70
+    schools: []
+    past_companies: []
+    notes: >-
+      Tech Lead na E-Deploy (produto 3S Checkout); pode encaminhar ao time de People.
+    linkedin_url: "https://www.linkedin.com/in/llima-santos/"
+    avatar_url: "https://unavatar.io/linkedin/llima-santos"
+    tags: [same-ecosystem, engineering]
+
+  - id: c_hericson
+    name: Hericson Sales
+    first_name: Hericson
+    sources: [linkedin]
+    company: E-Deploy
+    title: Platform Engineer
+    strength: medium
+    last_touch_days: 80
+    schools: []
+    past_companies: []
+    notes: >-
+      Platform engineer na E-Deploy; rede técnica no mesmo ecossistema da 3S Checkout.
+    linkedin_url: "https://www.linkedin.com/in/hericson-sales/"
+    avatar_url: "https://unavatar.io/linkedin/hericson-sales"
+    tags: [same-ecosystem, engineering]
+
+  - id: c_eduardo
+    name: Eduardo Almeida
+    first_name: Eduardo
+    sources: [linkedin]
+    company: E-Deploy
+    title: Diretor de Tecnologia e Inovação
+    strength: low
+    last_touch_days: 120
+    schools: []
+    past_companies: []
+    notes: >-
+      Diretoria técnica da E-Deploy; intro possível mas relação mais distante para pedir favor.
+    linkedin_url: "https://www.linkedin.com/in/eduardo-almeida-21459228/"
+    avatar_url: "https://unavatar.io/linkedin/eduardo-almeida-21459228"
+    tags: [leadership]

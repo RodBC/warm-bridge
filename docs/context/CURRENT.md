@@ -2,101 +2,76 @@
 
 > **AIs: read this fully before coding. Update this file before you end a session with meaningful changes.**
 
-**Last updated:** 2026-08-19  
-**Repo:** `/home/decastro/studies/warm-bridge` (own git → `origin` github.com/RodBC/warm-bridge)  
-**Sibling SaaS:** `/home/decastro/studies/career-fit` (same AI-context discipline; different JTBD)  
-**Inspiration (patterns only):** `/home/decastro/entrep` identity resolution + Pulse “show the proof”
+**Last updated:** 2026-08-20  
+**Repo:** `/home/decastro/studies/warm-bridge`  
+**UI:** MUI + Lead Police board · RWD navy/blue · http://127.0.0.1:5174
 
 ## Goal
 
-Ship a profitable SaaS that turns a seller’s **user-owned network** + a **decision-maker target** into **ranked bridges + approach scripts**, without burning relationships or scraping LinkedIn.
+Profitable SaaS: **LinkedIn session scrape** + **public web insight** → ranked bridges + asks — minimal friction (Career Fit pattern).
 
 Loop:
 
-`target → bridges in your graph → path proof + why → ask mode → you send`
-
-**Long-arc (ecosystem / NET):** track decision-makers + helpful bridges → thicken the edge graph (spider web) → suggest next moves (same-city café, setup helpers, events, posts, thin edges to grow) → friendly UI/UX. Wedge ships first; NET is the retention moat.
+`target LinkedIn URL → auto Camoufox session → scrape mutuals → enrich + research → find bridges → ask → you send`
 
 ## What exists now
 
-- Playbook: `playbook/bridge-types.yaml`, `modes.yaml`, `approach-rules.md`, `structure.md`  
-- Core Python: import / resolve / paths / explain / tutor / accounts / approach / **outcomes**  
-- API: FastAPI on `:8788` — `/api/find`, `/api/find-account`, `/api/outcomes`, …  
-- UI: send-ready workspace + account mode + **reach history** (localStorage, status chips)  
-- CLI: `find` (incl. `--seller`), `approach`, `import`, `eval`, `profile`, `serve`  
-- AI contract: `AGENTS.md`, `.cursor/rules/`, `.cursor/skills/`, this context system  
-- **Code archaeology for AIs:** `docs/AI_BUILD_MAP.md` (commit layers, module map, where-to-edit)  
-- Samples: `corpus/examples/linkedin-connections-sample.csv`, phone CSV, ask patterns  
-- Real CSV checklist: [`docs/CSV_VALIDATION.md`](../CSV_VALIDATION.md) (no PII in repo)
+- Playbook + deterministic find/explain/tutor/approach  
+- **Primary intake:** `linkedin_session` (Camoufox mutuals + enrich) — `sources.yaml` primary  
+- **Auto login:** Career Fit–ported burner state machine (`burner/bootstrap.py`) — `_await_post_password`, PT challenge strings, feed nudge, already-warm short-circuit, IMAP App Password OTP  
+- **Secrets preflight:** rejects normal Gmail password as IMAP secret; requires 16-char App Password or `totp_secret`  
+- **Insight:** `warm_bridge.research` — DuckDuckGo public search, cited snippets  
+- API: `POST /api/linkedin-map` (primary), `POST /api/investigate` (legacy CSV), `/api/research`  
+- UI: **Mapear** (LinkedIn URL only) · session panel · CSV demoted to “Legado”  
+- Eval: 17 cases incl. challenge classifier + OTP year-filter + app-password preflight  
+- Docs: `README.md`, `docs/LINKEDIN_SESSION.md`, `docs/PRODUCT.md`, skills aligned LinkedIn-first  
 
-## Decisions locked
+## Session arc (2026-08-20) — structured
+
+| Phase | What |
+|-------|------|
+| Product pivot | LinkedIn scrape primary; CSV → legacy; secrets yaml auto-boot |
+| OTP breakthrough | Port Career Fit `burner_login` state machine into Warm Bridge |
+| Camoufox lifecycle | `launch_persistent` + humanize + feed nudge for cookie persist |
+| IMAP harden | Year-like `20xxxx` OTP filter; AUTH vs timeout errors |
+| Preflight | Reject Gmail login password as App Password |
+| Status probe | `_authed_url` + `logged_in_hint` (cookie files) |
+| Dogfood | App Password saved; session warm on `/feed/`; `scripts/dev.sh` up |
+| Hygiene | `.gitignore` covers secrets, camoufox profile, `.venv-linkedin/`, `tmp/` |
+
+## Decisions locked (2026-08-20)
 
 | Decision | Rationale |
 |----------|-----------|
-| No automated LinkedIn/phone harvester in public core | ToS, bans, fragility; wrong moat |
-| Deterministic score → explain → template ask; LLM optional | Fast, cheap, controllable |
-| Manual send of WhatsApp/DM | Quality + compliance; product is drafts not spam |
-| Confidence bands + why, never fake % fit | Commercials trust explainability |
-| Separate `direct` vs `bridge` buckets | “You already know them” ≠ “ask someone for intro” |
-| Context must live in git | Chat is ephemeral; SaaS iteration needs memory |
-| Borrow Career Fit funnel + entrep resolution *ideas* only | Don’t fork scrapers or reputation vertical |
-| Code archaeology in `AI_BUILD_MAP.md` | Agents extend ownership tables when adding layers — not chat archaeology |
-| Outcomes browser-first; API validate/echo only | Foundation for NET memory without server PII yet |
+| LinkedIn scrape primary | Same wedge as Career Fit — less friction |
+| CSV demoted / deprecated UX | Hard product pivot |
+| Secrets in `data/secrets/linkedin_account.yaml` | Zero-touch after first boot |
+| Public web research for insight | Cited hooks; never invent mutuals |
+| Never invent people from search | Red tier in sources.yaml |
+| Career Fit login state machine ported | Fixes false SMS / premature detect; cookie persist |
+| SMS 2FA out of scope | Honest error; user switches to email/authenticator |
 
-## Active priorities (P0 → P2)
+## Credentials (founder)
 
-1. **P0** Keep context/skills discipline as default agent behavior  
-2. **P0** Validate ranking with a **real** Connections/phone export (parents / field seller) — checklist in `docs/CSV_VALIDATION.md`  
-3. **P1** ~~Strength tutoring UX~~ — shipped (`tutor.py` + ask dock)  
-4. **P1** ~~Account / multi-target workspace~~ — shipped (`accounts.py`, `/api/find-account`)  
-5. **P1** ~~Persist network in browser session~~ — shipped (`web/src/storage.ts` v2)  
-6. **P1** ~~Outcome / reach logging~~ — shipped (`outcomes.py`, `web/src/outcomes.ts`, Histórico + chips)  
-7. **P2** Optional LLM polish behind `playbook/approach-rules.md` **or** healthtech-path landing — leave open  
-8. **Later** Opportunity radar: same-city café, common-friend/ex-colleague setup, events, LinkedIn topic posts, territory underuse  
-9. **Later** NET UI — spider-web / edge graph, user-friendly (list-first, graph when useful, mobile for field)  
-10. **Later** Team territory graph; CRM export of “who to approach”
+**Paste in chat — agent writes file, warms session, starts app. You only open UI.**
 
-## Open questions
+1. LinkedIn email (Gmail that receives LinkedIn codes)  
+2. LinkedIn / account password  
+3. Gmail **App Password** (16 chars — not normal Gmail password)  
 
-- Exact Pro price ($29–49 draft)  
-- Whether Team (parents co-selling) ships before LLM polish  
-- vCard / Google Contacts adapter priority vs LinkedIn CSV alone  
-- Cross-link / shared auth with Career Fit later?  
-- How much graph UX in Pro vs Team (spider web can distract from “send the ask”)?  
-- Next after outcomes: LLM polish vs marketing landing?
+Optional: `linkedin.com/in/…` · or `totp_secret` if authenticator 2FA  
 
-## Ideas captured (not yet scoped)
+Never commit `data/secrets/` or `data/camoufox_profile/`.
 
-- Favor-bank / cooldown after asking a bridge  
-- Pulse-style weekly email: “3 accounts with new warm paths”  
-- Healthtech analogy landing page: sell the *path*, not the feature list  
-- **Ecosystem NET:** living tracker of reached DMs + bridge helpers; densify edges; suggest café / events / setup helpers / posts / thin-spot contacts  
-- “Where the net is thin” — intentional new contacts (still user-initiated adds)  
-- Content assists tied to open accounts  
+## Active priorities
 
-## Do not regress
+1. **P0** Dogfood Mapear on a real target URL (session warm)  
+2. **P1** Harden mutuals/enrich selectors  
+3. **Later** Radar, landing, server outcomes  
 
-- Inventing mutuals or closeness  
-- Shipping LinkedIn credential stuffing / session hijack  
-- Mass-send from our servers  
-- Letting README go vague — stay decisive  
-- Skipping context updates after meaningful work  
+## Last session
 
-## Session handoff template
-
-When updating this file, keep sections above and refresh **Last session**:
-
-```
-### Last session
-- Date:
-- Done:
-- Blocked:
-- Next exact task:
-```
-
-### Last session
-
-- Date: 2026-08-19  
-- Done: Stabilized send-ready + account layers (`4c4f8f9`); CLI `find --seller`; CSV checklist; outcome/reach logging (browser history + chips + thin `/api/outcomes`)  
-- Blocked: Real CSV validation still needs your export (see `docs/CSV_VALIDATION.md`)  
-- Next exact task: Run real CSV checklist **or** pick P2 (LLM polish vs landing)  
+- Date: 2026-08-20  
+- Done: Career Fit OTP port; secrets + warm session; README/skills/gitignore; context saved; commit+push  
+- Blocked: none for session boot (profile already on feed)  
+- Next: Mapear real target; harden mutuals selectors if empty/fragile  

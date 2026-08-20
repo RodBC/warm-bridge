@@ -37,7 +37,7 @@ The product keeps **suggesting the next move**, for example:
 
 **UX bar:** spider-web / edge-graph views must stay **user-friendly** — clear path proof, progressive disclosure (list first, graph when useful), mobile-ready for field WhatsApp workflows. Pretty graph with no next action is a fail.
 
-Intake stays user-owned / green-tier. Suggestions enrich *how to use and grow* the graph; they do not license red-tier harvesting.
+Intake is **LinkedIn-first** (seller’s own Selenium session → observed mutuals). CSV/paste are demoted fallbacks. Suggestions enrich *how to use and grow* the graph; they do not license mass harvesting or inventing edges.
 
 ## Why this wins money
 
@@ -46,7 +46,7 @@ Intake stays user-owned / green-tier. Suggestions enrich *how to use and grow* t
 | Can’t get the decision-maker | Ranked warm paths from their own network | Paid seat when weekly accounts matter |
 | Asking wrong / too hard burns contacts | Strength-gated ask modes + playbook | Quality of asks = upgrade |
 | Healthtech-style “who to approach” is expensive | Same job, DIY graph, faster ROI | Underprice CRM intel for SMB/field |
-| Tools scrape LinkedIn and risk bans | User-owned exports only | Trust differentiator |
+| Tools burn accounts with reckless multi-account farms | Seller’s **own** session only; rate-limited; never invent mutuals | Trust differentiator |
 
 ## Tiers (draft)
 
@@ -80,13 +80,15 @@ Intake stays user-owned / green-tier. Suggestions enrich *how to use and grow* t
 1. **Bridge playbook + anti-spam-through-friend craft** (in repo)  
 2. Outcome data (which bridge types convert) + **tracked DM/bridge history**  
 3. Notes / strength tutoring + **suggestion quality** (café, events, setup helpers)  
-4. Brand trust: we do not burn user accounts with reckless scraping  
+4. Brand trust: seller’s own session only; no inventing edges; no mass-send  
 5. **Network compounding** — the longer you use it, the denser and smarter your NET gets (hard to rip-and-replace)
 
 ## Exit criteria for current MVP
 
-- User imports Connections.csv or phone CSV → names a target → sees path proof in <2 minutes  
-- User copies a WhatsApp ask and sends manually  
+- User imports Connections.csv (or phone/paste) → **Investigar** → imported bridges + cited public insights  
+- User copies WhatsApp/LinkedIn ask (optional public hook)  
+- No LinkedIn login on happy path  
+- Casos recentes survive refresh; favor-bank soft-blocks repeat asks on the same bridge  
 - AI agents consistently update `docs/context/` and extend `docs/AI_BUILD_MAP.md` on new layers without being reminded twice  
 
 ## Explicit non-goals (6 months)
@@ -94,16 +96,18 @@ Intake stays user-owned / green-tier. Suggestions enrich *how to use and grow* t
 - Becoming a LinkedIn growth-hacking / mass-DM tool  
 - Auto-sending messages on the user’s behalf  
 - Competing with enterprise CRM graph vendors on scraped data  
-- Embedding search / vector DB before the simple graph needs it  
+- Inventing bridges from web search  
+- Default UX requiring Selenium session or offline demo  
 
 ## Ideas backlog (not committed scope)
 
-- Validate ranking with parents’ real CSV (north-star experiment)  
-- Account workspace: many targets under one company  
-- Favor-bank / “last ask” cooldown per bridge  
+- Validate ranking with parents’ live LinkedIn session (north-star experiment)  
+- Account workspace: many targets under one company *(shipped)*  
+- Favor-bank / “last ask” cooldown per bridge *(v0 shipped — browser outcomes)*  
 - Sibling cross-sell with Career Fit (candidate warm paths ↔ seller warm paths)  
-- **NET UI:** spider-web / edge graph with filters (city, company, strength, last touch)  
+- **NET UI:** spider-web / edge graph with filters (city, company, strength, last touch) *(path board shipped; radar suggestions later)*  
 - Decision-maker CRM-lite: status (not contacted / asked bridge / intro’d / meeting / won-lost)  
 - Suggestion engine v0: same-city café candidates; ex-colleague setup helpers; event overlaps  
 - Content assists: topic prompts for LinkedIn posts tied to open accounts  
 - “Where the net is thin” — gaps to fill with intentional new contacts (still user-initiated adds)   
+- CSV Connections import as optional fallback (demoted; not default UX) 

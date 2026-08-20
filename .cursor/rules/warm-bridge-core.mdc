@@ -1,38 +1,39 @@
 ---
-description: Warm Bridge AI contract — always read/update docs/context; SaaS north star; no LinkedIn harvesters
+description: Warm Bridge AI contract — LinkedIn session primary + public research; Lead Police UX; context loop
 alwaysApply: true
 ---
 
 # Warm Bridge — always on
 
-You are working on **Warm Bridge**, a SaaS for warm sales reach-out to decision-makers.
+You are working on **Warm Bridge**, a SaaS for warm sales reach-out (Lead Police visual identity).
 
 ## Mandatory context loop
 
 1. **Read** `docs/context/CURRENT.md` before non-trivial work.  
-2. **Follow** `AGENTS.md`.  
-3. For code work, read `docs/AI_BUILD_MAP.md` (how / where / why existing layers).  
-4. **Update** `docs/context/CURRENT.md` and append `docs/context/log/YYYY-MM-DD.md` when you change product state, architecture, or priorities.  
+2. **Follow** `AGENTS.md` and `docs/sources.yaml` (LinkedIn session + public research = primary).  
+3. For code work, read `docs/AI_BUILD_MAP.md`.  
+4. **Update** `docs/context/CURRENT.md` and append `docs/context/log/YYYY-MM-DD.md` when product/architecture changes.  
 5. After new modules/routes/layers, update `docs/AI_BUILD_MAP.md`.  
 6. Chat is not durable memory. If it matters, write it to the repo.
 
 ## North star
 
-`target → bridges in your graph → path proof + why → ask mode → you send`
+`target LinkedIn URL → auto Camoufox session → scrape mutuals → enrich + public insight (cited) → ranked bridges → ask → you send`
 
-Do not build features outside this loop unless the user explicitly expands scope.
+Primary wedge: `POST /api/linkedin-map`. Legacy: `POST /api/investigate` (CSV).
 
 ## Hard bans
 
-- Automated LinkedIn / address-book harvesting in this public repo  
-- Inventing mutuals or relationship strength  
-- Mass-sending WhatsApp/DM on the user’s behalf from our servers  
+- Inventing mutuals or people from web search  
+- Mass-sending WhatsApp/DM from our servers  
 - Fake “% fit” scores  
+- Committing credentials, cookies, or real PII to git (`data/secrets/`, `data/camoufox_profile/`)  
 
 ## Prefer
 
+- `linkedin_session` + `research` → Mapear / Lead Police board  
+- Career Fit burner login (App Password IMAP OTP) — never password fields in UI/API  
 - Deterministic score + explain + playbook asks  
-- Paste/CSV/green-tier sources (`docs/sources.yaml`)  
 - Small conventional commits  
-- Encoding new conventions into `.cursor/skills/`  
-- Extending `docs/AI_BUILD_MAP.md` when modules/routes/layers land  
+- Encode conventions into `.cursor/skills/`  
+- Extend `docs/AI_BUILD_MAP.md` when layers land  

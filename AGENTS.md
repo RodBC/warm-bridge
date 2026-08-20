@@ -1,59 +1,68 @@
 # AGENTS.md — operating contract for every AI on Warm Bridge
 
-You are building a **profitable SaaS**, not a LinkedIn scraper and not a spam cannon.
+You are building a **profitable SaaS**: warm paths to decision-makers (Lead Police UX) — drafts the user sends, not a spam cannon.
+
+**Owner product direction (locked 2026-08-20, updated same day):** **LinkedIn session primary** — Camoufox scrape mutuals → board → ask. CSV/paste demoted to legacy fallback. Public web research enriches asks (cited URLs). Chat orders override older “CSV-first / no login” language in skills/history.
+
+## Authority
+
+- Product owner sets roadmap; durable truth is this file + [`docs/sources.yaml`](docs/sources.yaml) + [`docs/context/CURRENT.md`](docs/context/CURRENT.md).
+- Prefer implementing what `sources.yaml` marks `enabled: true` and `primary: true`.
+- Chat is ephemeral. Repo context is the source of truth.
 
 ## Before you write code
 
-1. Read [`docs/context/CURRENT.md`](docs/context/CURRENT.md)  
-2. Read [`docs/AI_BUILD_MAP.md`](docs/AI_BUILD_MAP.md) if the task touches code layout, modules, API, or UI — *how / where / why* what already exists  
-3. Read [`docs/PRODUCT.md`](docs/PRODUCT.md) if the task touches product scope  
-4. Read [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) if the task touches system design  
-5. Skim the relevant skill under [`.cursor/skills/`](.cursor/skills/)
+1. Read [`docs/context/CURRENT.md`](docs/context/CURRENT.md)
+2. Read [`docs/sources.yaml`](docs/sources.yaml) — intake tiers (LinkedIn session primary)
+3. Read [`docs/AI_BUILD_MAP.md`](docs/AI_BUILD_MAP.md) for code ownership
+4. Read [`docs/PRODUCT.md`](docs/PRODUCT.md) / [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) as needed
+5. Skim matching skill under [`.cursor/skills/`](.cursor/skills/)
 
 ## After you finish meaningful work
 
-1. Update [`docs/context/CURRENT.md`](docs/context/CURRENT.md) (status, decisions, next)  
-2. Append a short entry to `docs/context/log/YYYY-MM-DD.md` (create if missing)  
-3. If you added modules, routes, or layers, update [`docs/AI_BUILD_MAP.md`](docs/AI_BUILD_MAP.md) (§1 ledger + ownership tables)  
-4. If you introduced a durable convention, encode it in a skill or `.cursor/rules/` — do not leave it only in chat  
-5. New product ideas → `docs/PRODUCT.md` or CURRENT **Open questions / Ideas**; shipped capabilities → **What exists now**
-
-**Chat is ephemeral. Repo context is the source of truth.**
+1. Update `docs/context/CURRENT.md`
+2. Append `docs/context/log/YYYY-MM-DD.md`
+3. Extend `docs/AI_BUILD_MAP.md` when modules/routes land
+4. Encode durable conventions in skills / `.cursor/rules/`
 
 ## Product north star
 
 ```
-target → bridges in your graph → path proof + why → ask mode → you send
+target LinkedIn URL → auto session → scrape mutuals → enrich + public research → ranked bridges → ask → you send
 ```
 
-**Long-arc (do not build ahead of the wedge):** NET memory (reached DMs + helpers) → thicken edges → opportunity radar + friendly spider-web UX. See `docs/PRODUCT.md` Ecosystem arc.
+**UX (Lead Police):** investigation board + spider-web + person pins from **session-observed mutuals** + cited public insights — not demo theater or invented mutuals.
 
-If a feature does not tighten the wedge loop *or* clearly advance the sequenced NET arc (and willingness to pay), do not build it.
+**Long-arc:** NET memory → thicken edges → opportunity radar.
 
-## Hard bans
+## Preferred patterns (hard-coded)
 
-- Automated LinkedIn (or phone-book) harvesting in the public core  
-- Mass WhatsApp/DM sending from our servers  
-- Inventing mutuals, shared history, or relationship strength not in the import  
-- Fake precision UI (“87% fit”) — use confidence bands + why bullets  
-- Shipping scrapers-as-moat (wrong business)
+- **Primary graph:** `linkedin_session.map_target` → mutuals → `find` pipeline (Camoufox persistent profile).
+- **Auto session:** `data/secrets/linkedin_account.yaml` → boot on `warm-bridge serve` + before map; Gmail OTP / pyotp for 2FA.
+- **Insight:** `research.research_target` → cited snippets → board + ask hook.
+- **Wedge API:** `POST /api/linkedin-map` (+ research). `POST /api/investigate` kept for legacy CSV path.
+- **Legacy:** `imports` CSV/phone/paste — fallback only, not default UX.
+- Deterministic score → explain → template ask; LLM polish optional under `playbook/approach-rules.md`.
+- Manual send only (WhatsApp / LinkedIn). No mass-send from our servers.
+- Never invent mutuals, people, or strength not in the import/session graph.
 
-## Preferred patterns
+## Still banned
 
-- Deterministic score → explain → template ask; LLM polish optional and constrained by `playbook/approach-rules.md`  
-- Intake via user-owned LinkedIn export / phone CSV / paste (`docs/sources.yaml`)  
-- Manual send is a feature: quality over spray; relationship is the asset  
-- Borrow funnel UX ideas from Career Fit; borrow identity-resolution *ideas* from entrep — never their red-tier scrapers  
+- Mass WhatsApp/DM send from Warm Bridge servers
+- Fake “% fit” scores
+- Inventing people/edges from web search (“probably knows…”)
+- Committing real PII (`data/network.yaml`, `data/secrets/`, credentials, cookies) to git
+- End-user password fields in FastAPI/UI (secrets file only)
 
-## Skills (project)
+## Skills
 
 | Skill | When |
 |-------|------|
-| `warm-bridge-context` | Any session — read/write context |
-| `warm-bridge-product` | Roadmap, pricing, scope fights |
-| `warm-bridge-bridges` | Scoring, modes, ask templates, evals |
-| `warm-bridge-sources` | Imports, LinkedIn CSV, phone CSV, source tiers |
+| `warm-bridge-context` | Session handoff |
+| `warm-bridge-product` | Scope / pricing |
+| `warm-bridge-bridges` | Score, modes, asks, outcomes, evals |
+| `warm-bridge-sources` | Session adapters, research, sources.yaml |
 
 ## Commit hygiene
 
-Conventional commits (`feat`, `fix`, `docs`, `chore`, `refactor`). Keep PRs small. Never commit `data/network.yaml`, `data/seller.yaml`, or real PII.
+Conventional commits. Never commit credentials, cookies, or real PII.

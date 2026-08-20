@@ -1,0 +1,12 @@
+{
+  "name": "warm-bridge",
+  "private": true,
+  "version": "0.2.0",
+  "description": "Warm Bridge — API + Lead Police UI",
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "dev": "bash scripts/dev.sh",
+    "dev:api": "bash -c '.venv-wb/bin/python -m warm_bridge.api'",
+    "dev:web": "npm --prefix web run dev"
+  }
+}

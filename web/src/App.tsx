@@ -1,8 +1,49 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  Alert,
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Chip,
+  Collapse,
+  Container,
+  Divider,
+  Grid,
+  IconButton,
+  Link,
+  MenuItem,
+  Paper,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import HistoryIcon from "@mui/icons-material/History";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import ChatIcon from "@mui/icons-material/Chat";
+import { motion } from "framer-motion";
+import {
   findAccount,
   findBridges,
   importNetwork,
+  researchTarget,
+  linkedInMap,
+  linkedInSessionAccount,
+  linkedInSessionStatus,
+  linkedinProfileUrl,
   loadExampleAccount,
   loadExampleNetwork,
   loadExampleSeller,
@@ -12,9 +53,17 @@ import {
   type AccountTargetResult,
   type Bridge,
   type FindResult,
+  type InsightPack,
+  type LinkedInSessionStatus,
   type Network,
   type Seller,
 } from "./api";
+import {
+  loadCases,
+  touchCaseOutcome,
+  upsertCase,
+  type WarmCase,
+} from "./cases";
 import {
   CHIP_STATUSES,
   STATUS_LABEL_PT,
@@ -22,18 +71,22 @@ import {
   formatReachWhen,
   loadOutcomes,
   logReach,
+  recentFavorAsk,
   type ReachEvent,
   type ReachStatus,
 } from "./outcomes";
 import {
   clearSession,
-  defaultAccount,
+  defaultSellerLinkedin,
+  defaultTarget,
   loadSession,
   newTargetId,
   saveSession,
   type AccountTargetRow,
   type WorkspaceMode,
 } from "./storage";
+import { SpiderBoard } from "./SpiderBoard";
+import { resolvePortrait } from "./avatar";
 import { bridgeTutor, tutorLevelLabel } from "./tutor";
 
 function confidenceLabel(c: string) {
@@ -55,10 +108,11 @@ function modeLabel(m: string) {
   return map[m] || m;
 }
 
-function tutorClass(level: string) {
-  if (level === "yes") return "tutor-yes";
-  if (level === "soft") return "tutor-soft";
-  return "tutor-no";
+function bandColor(c: string): "success" | "warning" | "default" | "info" {
+  if (c === "high") return "success";
+  if (c === "medium") return "warning";
+  if (c === "direct") return "info";
+  return "default";
 }
 
 function applyFindResult(
@@ -66,26 +120,41 @@ function applyFindResult(
   setResult: (r: FindResult) => void,
   setSelected: (b: Bridge | null) => void,
   setStatus: (s: string) => void,
+  opts?: { selectFirst?: boolean },
 ) {
   setResult(data);
-  const first = data.bridges[0] || data.direct[0] || null;
-  setSelected(first);
+  if (opts?.selectFirst === false) {
+    setSelected(null);
+  } else {
+    const first = data.bridges[0] || data.direct[0] || null;
+    setSelected(first);
+  }
   setStatus(data.proof_line);
 }
 
+const fade = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.35 },
+};
+
 export default function App() {
   const [seller, setSeller] = useState<Seller | null>(null);
-  const [sellerLabel, setSellerLabel] = useState("Carregando…");
+  const [sellerLabel, setSellerLabel] = useState("Pronto para mapear");
   const [network, setNetwork] = useState<Network | null>(null);
   const [networkPaste, setNetworkPaste] = useState("");
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("single");
-  const [targetName, setTargetName] = useState("Marina Costa");
-  const [targetCompany, setTargetCompany] = useState("Acme Saúde");
-  const [targetTitle, setTargetTitle] = useState("Diretora de Compras");
-  const [accountCompany, setAccountCompany] = useState(defaultAccount().company);
-  const [accountTargets, setAccountTargets] = useState<AccountTargetRow[]>(
-    defaultAccount().targets,
-  );
+  const [targetName, setTargetName] = useState("");
+  const [targetCompany, setTargetCompany] = useState("");
+  const [targetTitle, setTargetTitle] = useState("");
+  const [targetLinkedin, setTargetLinkedin] = useState("");
+  const [sellerLinkedin, setSellerLinkedin] = useState("");
+  const [sellerPhoto, setSellerPhoto] = useState<string | undefined>();
+  const [targetPhoto, setTargetPhoto] = useState<string | undefined>();
+  const [accountCompany, setAccountCompany] = useState("");
+  const [accountTargets, setAccountTargets] = useState<AccountTargetRow[]>([
+    { id: newTargetId(), name: "", title: "" },
+  ]);
   const [accountResult, setAccountResult] = useState<AccountFindResult | null>(null);
   const [activeAccountTargetId, setActiveAccountTargetId] = useState<string | null>(null);
   const [locale, setLocale] = useState("pt");
@@ -93,15 +162,44 @@ export default function App() {
   const [selected, setSelected] = useState<Bridge | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(
+    "Cole o LinkedIn do alvo e clique Mapear — sessão LinkedIn automática.",
+  );
   const [copied, setCopied] = useState(false);
   const [restored, setRestored] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
+  const [insight, setInsight] = useState<InsightPack | null>(null);
   const [outcomes, setOutcomes] = useState<ReachEvent[]>([]);
+  const [cases, setCases] = useState<WarmCase[]>([]);
+  const [sessionStatus, setSessionStatus] = useState<LinkedInSessionStatus | null>(null);
+  const [sessionStatusOpen, setSessionStatusOpen] = useState(false);
+  const [legacyImportOpen, setLegacyImportOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const askRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setOutcomes(loadOutcomes());
+    setCases(loadCases());
+  }, []);
+
+  useEffect(() => {
+    void linkedInSessionStatus()
+      .then((st) => {
+        setSessionStatus(st);
+        const acct = st.account;
+        if (acct?.configured && acct.linkedin_url && !sellerLinkedin.trim()) {
+          setSellerLinkedin(acct.linkedin_url);
+        }
+      })
+      .catch(() => setSessionStatus(null));
+    void linkedInSessionAccount()
+      .then((acct) => {
+        if (acct.configured && acct.linkedin_url) {
+          setSellerLinkedin((prev) => prev.trim() || acct.linkedin_url || "");
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -117,6 +215,12 @@ export default function App() {
         setTargetName(session.target.name);
         setTargetCompany(session.target.company);
         setTargetTitle(session.target.title);
+        if (session.target.linkedin) setTargetLinkedin(session.target.linkedin);
+      }
+      if (session.sellerLinkedin) setSellerLinkedin(session.sellerLinkedin);
+      else if (session.seller) {
+        const li = (session.seller.identity as { linkedin?: string } | undefined)?.linkedin;
+        if (li) setSellerLinkedin(li.startsWith("http") ? li : `https://${li}`);
       }
       if (session.account) {
         setAccountCompany(session.account.company);
@@ -134,29 +238,47 @@ export default function App() {
       if (session.locale) setLocale(session.locale);
       setStatus(`${session.network.contacts.length} contatos restaurados do navegador`);
       setRestored(true);
+      if (!session.accountResult && !session.activeAccountTargetId) {
+        const t = session.target ?? defaultTarget();
+        void findBridges({
+          target: {
+            name: t.name,
+            company: t.company,
+            title: t.title,
+            linkedin: t.linkedin,
+          },
+          network: session.network,
+          seller: session.seller,
+          locale: session.locale || "pt",
+          top_k: 8,
+          with_approaches: true,
+        })
+          .then((data) =>
+            applyFindResult(data, setResult, setSelected, setStatus, {
+              selectFirst: false,
+            }),
+          )
+          .catch(() => {});
+      }
       return;
     }
-
-    Promise.all([loadExampleSeller(), loadExampleNetwork(), loadExampleAccount()])
-      .then(([s, n, a]) => {
-        setSeller(s);
-        setNetwork(n);
-        setAccountCompany(a.company);
-        setAccountTargets(a.targets);
-        const name = (s.identity as { name?: string } | undefined)?.name;
-        setSellerLabel(name ? `Exemplo: ${name}` : "Seller de exemplo");
-        setStatus(`${n.contacts?.length ?? 0} contatos no grafo de exemplo`);
-      })
-      .catch(() => setStatus("API offline — rode: warm-bridge serve"));
+    setSellerLabel("Pronto para investigar");
+    setStatus("Importe Connections.csv ou cole contatos — depois investigue o alvo.");
   }, []);
 
   useEffect(() => {
-    if (!network && !seller) return;
+    if (!network && !seller && !sellerLinkedin && !targetName) return;
     saveSession({
       network,
       seller,
+      sellerLinkedin,
       mode: workspaceMode,
-      target: { name: targetName, company: targetCompany, title: targetTitle },
+      target: {
+        name: targetName,
+        company: targetCompany,
+        title: targetTitle,
+        linkedin: targetLinkedin,
+      },
       account: { company: accountCompany, targets: accountTargets },
       accountResult,
       activeAccountTargetId,
@@ -165,10 +287,12 @@ export default function App() {
   }, [
     network,
     seller,
+    sellerLinkedin,
     workspaceMode,
     targetName,
     targetCompany,
     targetTitle,
+    targetLinkedin,
     accountCompany,
     accountTargets,
     accountResult,
@@ -190,9 +314,20 @@ export default function App() {
       setSeller(s);
       const name = (s.identity as { name?: string } | undefined)?.name;
       setSellerLabel(name ? `Carregado: ${name}` : file.name);
+      const li = (s.identity as { linkedin?: string } | undefined)?.linkedin;
+      if (li) setSellerLinkedin(li.startsWith("http") ? li : `https://${li}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
+  }
+
+  function patchSellerLinkedin(url: string) {
+    setSellerLinkedin(url);
+    setSeller((prev) => {
+      if (!prev) return prev;
+      const identity = { ...((prev.identity as object) || {}), linkedin: url };
+      return { ...prev, identity };
+    });
   }
 
   async function onImport() {
@@ -202,6 +337,7 @@ export default function App() {
       const data = await importNetwork(networkPaste, network);
       setNetwork(data.network);
       setNetworkPaste("");
+      setIsDemo(false);
       setStatus(`${data.added} importados (${data.import_kind}) · total ${data.total}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -210,15 +346,158 @@ export default function App() {
     }
   }
 
-  async function onFind() {
+  async function onMapear(demo = false) {
+    if (!targetLinkedin.trim() && !demo) {
+      setError("Cole o LinkedIn do alvo (linkedin.com/in/…).");
+      return;
+    }
+    await onLinkedInMap(demo);
+  }
+
+  function rememberCase(opts: {
+    target: { name: string; company: string; title: string; linkedin: string };
+    find: FindResult;
+    mutual_count: number;
+    source: "demo" | "live";
+    sellerLinkedin?: string;
+  }) {
+    const top = opts.find.bridges[0] || opts.find.direct[0];
+    setCases(
+      upsertCase({
+        target: {
+          name: opts.target.name || opts.find.target.name,
+          company: opts.target.company || opts.find.target.company,
+          title: opts.target.title || opts.find.target.title,
+          linkedin: opts.target.linkedin,
+        },
+        proof_line: opts.find.proof_line,
+        top_bridge: top?.name || "",
+        mutual_count: opts.mutual_count,
+        source: opts.source,
+        sellerLinkedin: opts.sellerLinkedin || sellerLinkedin || undefined,
+      }),
+    );
+  }
+
+  async function runLinkedInMap(opts: {
+    demo?: boolean;
+    sellerLi: string;
+    target: { name: string; company: string; title: string; linkedin: string };
+    sellerOverride?: Seller | null;
+  }): Promise<boolean> {
+    const data = await linkedInMap(
+      {
+        seller_linkedin: opts.sellerLi,
+        target: opts.target,
+        seller: opts.sellerOverride !== undefined ? opts.sellerOverride : seller,
+        locale,
+        top_k: 8,
+        with_approaches: true,
+        enrich: !opts.demo,
+      },
+      { demo: opts.demo },
+    );
+    setNetwork(data.network);
+    setIsDemo(false);
+    if (data.seller) {
+      setSeller(data.seller);
+      const name = (data.seller.identity as { name?: string } | undefined)?.name;
+      setSellerLabel(name ? `Sessão: ${name}` : "Sessão LinkedIn");
+    }
+    if (data.meta.seller_avatar_url) setSellerPhoto(data.meta.seller_avatar_url);
+    if (data.meta.target_avatar_url) setTargetPhoto(data.meta.target_avatar_url);
+    if (data.meta.target_title) setTargetTitle((prev) => prev.trim() || data.meta.target_title || "");
+    if (data.meta.target_company) {
+      setTargetCompany((prev) => prev.trim() || data.meta.target_company || "");
+    }
+    applyFindResult(data.find, setResult, setSelected, setStatus, {
+      selectFirst: false,
+    });
+    try {
+      const insightPack = await researchTarget({
+        target: {
+          name: opts.target.name || data.find.target.name,
+          company: opts.target.company || data.find.target.company,
+          title: opts.target.title || data.find.target.title,
+          linkedin: opts.target.linkedin,
+        },
+      });
+      setInsight(insightPack);
+    } catch {
+      setInsight(null);
+    }
+    const mockNote = data.meta.mock ? " · modo simulado (CI)" : "";
+    const n = data.meta.mutual_count;
+    if (!data.meta.mock && n === 0) {
+      setStatus(
+        "0 mutuals observados — confira login no perfil Camoufox (painel Sessão LinkedIn).",
+      );
+      setSessionStatusOpen(true);
+      void linkedInSessionStatus().then(setSessionStatus).catch(() => {});
+    } else {
+      setStatus(`${data.find.proof_line} · ${n} mutuals${mockNote}`);
+    }
+    rememberCase({
+      target: opts.target,
+      find: data.find,
+      mutual_count: n,
+      source: opts.demo || data.meta.mock ? "demo" : "live",
+      sellerLinkedin: opts.sellerLi,
+    });
+    return true;
+  }
+
+  async function onLinkedInMap(demo = false) {
     setError("");
     setBusy(true);
     setCopied(false);
     setAccountResult(null);
     setActiveAccountTargetId(null);
     try {
+      const sellerLi = sellerLinkedin.trim() || defaultSellerLinkedin();
+      const t = {
+        name: targetName.trim() || defaultTarget().name,
+        company: targetCompany,
+        title: targetTitle,
+        linkedin: targetLinkedin.trim() || defaultTarget().linkedin,
+      };
+      if (!sellerLinkedin.trim()) setSellerLinkedin(sellerLi);
+      if (!targetName.trim()) setTargetName(t.name);
+      if (!targetLinkedin.trim()) setTargetLinkedin(t.linkedin);
+      await runLinkedInMap({ demo, sellerLi, target: t });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      if (/sessão|chrome|selenium|painel/i.test(msg)) {
+        setSessionStatusOpen(true);
+        void linkedInSessionStatus().then(setSessionStatus).catch(() => {});
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openCase(c: WarmCase) {
+    setError("");
+    setWorkspaceMode("single");
+    setTargetName(c.target.name);
+    setTargetCompany(c.target.company);
+    setTargetTitle(c.target.title);
+    setTargetLinkedin(c.target.linkedin);
+    if (c.sellerLinkedin) setSellerLinkedin(c.sellerLinkedin);
+    if (!network?.contacts?.length) {
+      setStatus(`Caso ${c.target.name} — mapeie ou abra a demo para ter rede.`);
+      return;
+    }
+    setBusy(true);
+    try {
       const data = await findBridges({
-        target: { name: targetName, company: targetCompany, title: targetTitle },
+        target: {
+          name: c.target.name,
+          company: c.target.company,
+          title: c.target.title,
+          linkedin: c.target.linkedin,
+        },
         network,
         seller,
         locale,
@@ -226,8 +505,77 @@ export default function App() {
         with_approaches: true,
       });
       applyFindResult(data, setResult, setSelected, setStatus);
+      setStatus(c.proof_line || data.proof_line);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function loadDemo() {
+    setError("");
+    setBusy(true);
+    setCopied(false);
+    setAccountResult(null);
+    setActiveAccountTargetId(null);
+    try {
+      const [s, n, a] = await Promise.all([
+        loadExampleSeller(),
+        loadExampleNetwork(),
+        loadExampleAccount(),
+      ]);
+      setSeller(s);
+      setNetwork(n);
+      setAccountCompany(a.company);
+      setAccountTargets(a.targets);
+      const idnLocal = s.identity as
+        | { name?: string; linkedin?: string; role?: string; company?: string }
+        | undefined;
+      setSellerLabel(idnLocal?.name ? `Demo: ${idnLocal.name}` : "Demo aberta");
+      const li = idnLocal?.linkedin;
+      const sellerLi = li
+        ? li.startsWith("http")
+          ? li
+          : `https://${li}`
+        : defaultSellerLinkedin();
+      setSellerLinkedin(sellerLi);
+      setSellerPhoto(undefined);
+      const t = defaultTarget();
+      setTargetName(t.name);
+      setTargetCompany(t.company);
+      setTargetTitle(t.title);
+      setTargetLinkedin(t.linkedin);
+      setTargetPhoto(undefined);
+      setIsDemo(true);
+      setWorkspaceMode("single");
+      const data = await findBridges({
+        target: {
+          name: t.name,
+          company: t.company,
+          title: t.title,
+          linkedin: t.linkedin,
+        },
+        network: n,
+        seller: s,
+        locale: "pt",
+        top_k: 8,
+        with_approaches: true,
+      });
+      applyFindResult(data, setResult, setSelected, setStatus, { selectFirst: false });
+      setStatus(
+        `${n.contacts?.length ?? 0} pontes · demo offline com perfis LinkedIn reais · Mapear usa sessão Chrome`,
+      );
+      rememberCase({
+        target: t,
+        find: data,
+        mutual_count: n.contacts?.length ?? 0,
+        source: "demo",
+        sellerLinkedin: sellerLi,
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setStatus("API offline — rode: npm run dev");
     } finally {
       setBusy(false);
     }
@@ -255,9 +603,8 @@ export default function App() {
       });
       setAccountResult(data);
       const first = data.targets.find((t) => t.has_path) || data.targets[0];
-      if (first) {
-        selectAccountTarget(first, data);
-      } else {
+      if (first) selectAccountTarget(first, data);
+      else {
         setResult(null);
         setSelected(null);
       }
@@ -276,16 +623,11 @@ export default function App() {
   }
 
   function addAccountTarget() {
-    setAccountTargets((prev) => [
-      ...prev,
-      { id: newTargetId(), name: "", title: "" },
-    ]);
+    setAccountTargets((prev) => [...prev, { id: newTargetId(), name: "", title: "" }]);
   }
 
   function updateAccountTarget(id: string, patch: Partial<AccountTargetRow>) {
-    setAccountTargets((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...patch } : t)),
-    );
+    setAccountTargets((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
   }
 
   function removeAccountTarget(id: string) {
@@ -312,6 +654,7 @@ export default function App() {
         : {}),
     });
     setOutcomes(next);
+    setCases(touchCaseOutcome(result.target.name, status));
   }
 
   function onOpenWhatsApp() {
@@ -329,38 +672,59 @@ export default function App() {
     setSelected(null);
     setAccountResult(null);
     setActiveAccountTargetId(null);
+    setNetwork(null);
+    setSeller(null);
+    setSellerPhoto(undefined);
+    setTargetPhoto(undefined);
     setRestored(false);
+    setIsDemo(false);
+    setInsight(null);
     setWorkspaceMode("single");
-    const acct = defaultAccount();
-    setAccountCompany(acct.company);
-    setAccountTargets(acct.targets);
-    loadExampleSeller()
-      .then((s) => {
-        setSeller(s);
-        const name = (s.identity as { name?: string } | undefined)?.name;
-        setSellerLabel(name ? `Exemplo: ${name}` : "Seller de exemplo");
-      })
-      .catch(() => {});
-    Promise.all([loadExampleNetwork(), loadExampleAccount()])
-      .then(([n, a]) => {
-        setNetwork(n);
-        setAccountCompany(a.company);
-        setAccountTargets(a.targets);
-        setStatus("Sessão limpa — exemplos recarregados");
-      })
-      .catch(() => {});
+    setAccountCompany("");
+    setAccountTargets([{ id: newTargetId(), name: "", title: "" }]);
+    setTargetName("");
+    setTargetCompany("");
+    setTargetTitle("");
+    setTargetLinkedin("");
+    setSellerLinkedin("");
+    setSellerLabel("Pronto para investigar");
+    setStatus("Importe Connections.csv ou cole contatos — depois investigue o alvo.");
+    setError("");
   }
 
   const sellerName =
     (seller?.identity as { name?: string } | undefined)?.name || "você";
-  const tutor = selected ? bridgeTutor(selected, locale) : null;
+  const idn = seller?.identity as
+    | { role?: string; company?: string; headline?: string }
+    | undefined;
+  const sellerRole = idn?.role || "";
+  const sellerCompany = idn?.company || "";
+  const sellerHeadline =
+    idn?.headline ||
+    (sellerRole && sellerCompany
+      ? `${sellerRole} - ${sellerCompany}`
+      : sellerRole || sellerCompany || "");
+  const sellerPinTitle = sellerRole || sellerHeadline;
+  const sellerPinCompany = sellerRole ? sellerCompany : "";
+  const tutor = selected ? bridgeTutor(selected, locale, outcomes) : null;
+  const favorHit = selected
+    ? recentFavorAsk(selected.contact_id, outcomes, 14)
+    : null;
   const waLink =
-    selected?.message && selected.phone
-      ? whatsAppUrl(selected.phone, selected.message)
-      : null;
+    selected?.message && selected.phone ? whatsAppUrl(selected.phone, selected.message) : null;
+  const bridgeLinkedin = selected?.linkedin_url
+    ? linkedinProfileUrl(selected.linkedin_url)
+    : null;
   const latestForSelected = selected
     ? outcomes.find((e) => e.bridgeId === selected.contact_id)
     : null;
+  const sessionSeverity = sessionStatus?.severity ?? "yellow";
+  const sessionAlertSeverity =
+    sessionSeverity === "ready"
+      ? "success"
+      : sessionSeverity === "blocked"
+        ? "error"
+        : "warning";
 
   const stepNetwork = (network?.contacts?.length ?? 0) > 0;
   const stepTarget =
@@ -370,440 +734,685 @@ export default function App() {
   const stepBridges = Boolean(result || accountResult);
   const stepAsk = Boolean(selected?.message);
 
-  const heroLine =
-    workspaceMode === "account" && accountResult && !activeAccountTargetId
-      ? accountResult.summary_line
-      : result?.proof_line;
+  const steps = [
+    { label: "Rede", on: stepNetwork },
+    { label: "Alvo", on: stepTarget },
+    { label: "Pontes", on: stepBridges },
+    { label: "Pedir", on: stepAsk },
+  ];
 
   return (
-    <div className="app">
-      <header className="site-header">
-        <div className="brand-block">
-          <p className="brand">Warm Bridge</p>
-          <p className="tagline">Chegue no tomador pela ponte certa.</p>
-        </div>
-        <nav className="steps" aria-label="Progresso">
-          <span className={`step ${stepNetwork ? "on" : ""}`}>Rede</span>
-          <span className={`step ${stepTarget ? "on" : ""}`}>Alvo</span>
-          <span className={`step ${stepBridges ? "on" : ""}`}>Pontes</span>
-          <span className={`step ${stepAsk ? "on" : ""}`}>Pedir</span>
-        </nav>
-        <button
-          type="button"
-          className={`btn ghost sm history-toggle ${historyOpen ? "on" : ""}`}
-          onClick={() => setHistoryOpen((o) => !o)}
-        >
-          Histórico{outcomes.length ? ` (${outcomes.length})` : ""}
-        </button>
-      </header>
-
-      {historyOpen && (
-        <section className="history-panel animate-in" aria-label="Histórico de alcance">
-          <div className="history-head">
-            <h2>Histórico</h2>
-            <p>Últimos alcances neste navegador — você marca o status.</p>
-            {outcomes.length > 0 && (
-              <button type="button" className="btn ghost sm" onClick={clearReachHistory}>
-                Limpar histórico
-              </button>
-            )}
-          </div>
-          {outcomes.length === 0 ? (
-            <p className="history-empty">
-              Ainda vazio. Copie uma mensagem ou marque Enviei / Intro feita no painel Pedir.
-            </p>
-          ) : (
-            <ul className="history-list">
-              {outcomes.map((ev) => (
-                <li key={ev.id}>
-                  <span className="history-status">{STATUS_LABEL_PT[ev.status]}</span>
-                  <span className="history-who">
-                    {ev.bridgeName} → {ev.targetName}
-                    {ev.accountCompany ? ` · ${ev.accountCompany}` : ""}
-                  </span>
-                  <time dateTime={ev.at}>{formatReachWhen(ev.at)}</time>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
-
-      {heroLine && (
-        <section className="proof-hero animate-in" key={heroLine}>
-          <p className="proof-kicker">
-            {workspaceMode === "account" ? "Conta mapeada" : "Melhor caminho"}
-          </p>
-          <p className="proof-line">{heroLine}</p>
-          {result && (
-            <p className="proof-meta">
-              {result.counts.bridges} pontes · {result.counts.direct} direto · alvo{" "}
-              {result.resolution.status}
-              {workspaceMode === "account" && result.target.name
-                ? ` · ${result.target.name}`
-                : ""}
-            </p>
-          )}
-        </section>
-      )}
-
-      <main className={`workspace ${result ? "has-result" : ""}`}>
-        <section className="setup">
-          <div className="setup-head">
-            <h2>Preparar</h2>
-            {restored && (
-              <button type="button" className="btn ghost sm" onClick={resetSession}>
-                Limpar sessão
-              </button>
-            )}
-          </div>
-
-          <div className="mode-toggle" role="tablist" aria-label="Modo de trabalho">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={workspaceMode === "single"}
-              className={`mode-btn ${workspaceMode === "single" ? "on" : ""}`}
-              onClick={() => setWorkspaceMode("single")}
+    <Box sx={{ pb: 6 }}>
+      <AppBar position="sticky" color="transparent">
+        <Toolbar sx={{ gap: 2, flexWrap: "wrap", py: 1 }}>
+          <Box sx={{ flex: "1 1 200px" }}>
+            <Typography variant="overline" sx={{ color: "primary.light", display: "block" }}>
+              Warm Bridge · você envia
+            </Typography>
+            <Typography
+              variant="h1"
+              sx={{ fontSize: { xs: "1.6rem", md: "2rem" }, color: "#fff", lineHeight: 1 }}
             >
-              Alvo único
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={workspaceMode === "account"}
-              className={`mode-btn ${workspaceMode === "account" ? "on" : ""}`}
-              onClick={() => setWorkspaceMode("account")}
+              Lead{" "}
+              <Box component="span" sx={{ color: "primary.light" }}>
+                Police
+              </Box>
+            </Typography>
+            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.65)", mt: 0.5 }}>
+              Caminhos quentes da sua rede até o tomador.
+            </Typography>
+          </Box>
+          <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: "wrap" }}>
+            {steps.map((s) => (
+              <Chip
+                key={s.label}
+                size="small"
+                label={s.label}
+                color={s.on ? "primary" : "default"}
+                variant={s.on ? "filled" : "outlined"}
+                sx={{
+                  color: s.on ? undefined : "rgba(255,255,255,0.7)",
+                  borderColor: "rgba(255,255,255,0.25)",
+                }}
+              />
+            ))}
+          </Stack>
+          <Tooltip title="Histórico de alcance">
+            <IconButton color="inherit" onClick={() => setHistoryOpen((o) => !o)}>
+              <HistoryIcon />
+            </IconButton>
+          </Tooltip>
+        </Toolbar>
+        {cases.length > 0 && (
+          <Box
+            sx={{
+              px: 2,
+              pb: 1.5,
+              display: "flex",
+              gap: 1,
+              overflowX: "auto",
+              alignItems: "center",
+              borderTop: "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{ color: "rgba(255,255,255,0.55)", whiteSpace: "nowrap", mr: 0.5 }}
             >
-              Conta · vários alvos
-            </button>
-          </div>
+              Casos recentes
+            </Typography>
+            {cases.map((c) => (
+              <Chip
+                key={c.id}
+                size="small"
+                clickable
+                onClick={() => void openCase(c)}
+                label={`${c.target.name}${c.top_bridge ? ` · ${c.top_bridge}` : ""}`}
+                color={c.source === "live" ? "primary" : "default"}
+                variant={c.source === "live" ? "filled" : "outlined"}
+                sx={{
+                  color: "#fff",
+                  borderColor: "rgba(255,255,255,0.28)",
+                  maxWidth: 280,
+                }}
+              />
+            ))}
+          </Box>
+        )}
+      </AppBar>
 
-          <details className="fold" open={!result}>
-            <summary>Rede · {network?.contacts?.length ?? 0} contatos</summary>
-            <p className="hint">
-              Cole <code>Connections.csv</code>, CSV do celular ou cartões. Dados ficam no
-              navegador — sem scraper.
-            </p>
-            <textarea
-              value={networkPaste}
-              onChange={(e) => setNetworkPaste(e.target.value)}
-              placeholder="Cole CSV do LinkedIn ou contatos aqui…"
-            />
-            <div className="row">
-              <button
-                type="button"
-                className="btn secondary"
-                disabled={busy || !networkPaste.trim()}
-                onClick={onImport}
-              >
-                Importar / mesclar
-              </button>
-              <button
-                type="button"
-                className="btn ghost"
-                onClick={() =>
-                  loadExampleNetwork().then((n) => {
-                    setNetwork(n);
-                    setStatus("Rede de exemplo carregada");
-                  })
-                }
-              >
-                Exemplo
-              </button>
-            </div>
-          </details>
-
-          <details className="fold seller-fold">
-            <summary>Vendedor · {sellerLabel}</summary>
-            <input
-              type="file"
-              accept=".yaml,.yml,.json"
-              onChange={(e) => onUploadSeller(e.target.files?.[0] ?? null)}
-            />
-          </details>
-
-          {workspaceMode === "single" ? (
-            <div className="target-block">
-              <h3>Tomador de decisão</h3>
-              <div className="target-grid">
-                <label>
-                  Nome
-                  <input value={targetName} onChange={(e) => setTargetName(e.target.value)} />
-                </label>
-                <label>
-                  Empresa
-                  <input
-                    value={targetCompany}
-                    onChange={(e) => setTargetCompany(e.target.value)}
-                  />
-                </label>
-                <label>
-                  Cargo
-                  <input value={targetTitle} onChange={(e) => setTargetTitle(e.target.value)} />
-                </label>
-                <label>
-                  Idioma
-                  <select value={locale} onChange={(e) => setLocale(e.target.value)}>
-                    <option value="pt">PT · WhatsApp</option>
-                    <option value="en">EN</option>
-                  </select>
-                </label>
-              </div>
-              <button
-                type="button"
-                className="btn primary wide"
-                disabled={busy || !targetName.trim() || !network}
-                onClick={onFind}
-              >
-                {busy ? "Mapeando pontes…" : "Achar pontes + pedidos"}
-              </button>
-            </div>
-          ) : (
-            <div className="target-block account-block">
-              <h3>Conta · tomadores</h3>
-              <label>
-                Empresa / conta
-                <input
-                  value={accountCompany}
-                  onChange={(e) => setAccountCompany(e.target.value)}
-                />
-              </label>
-              <label>
-                Idioma
-                <select value={locale} onChange={(e) => setLocale(e.target.value)}>
-                  <option value="pt">PT · WhatsApp</option>
-                  <option value="en">EN</option>
-                </select>
-              </label>
-              <div className="account-roster-edit">
-                {accountTargets.map((t) => (
-                  <div key={t.id} className="account-row">
-                    <input
-                      placeholder="Nome"
-                      value={t.name}
-                      onChange={(e) => updateAccountTarget(t.id, { name: e.target.value })}
-                    />
-                    <input
-                      placeholder="Cargo"
-                      value={t.title}
-                      onChange={(e) => updateAccountTarget(t.id, { title: e.target.value })}
-                    />
-                    <button
-                      type="button"
-                      className="btn ghost sm"
-                      aria-label="Remover alvo"
-                      onClick={() => removeAccountTarget(t.id)}
-                      disabled={accountTargets.length <= 1}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <div className="row">
-                <button type="button" className="btn ghost sm" onClick={addAccountTarget}>
-                  + Alvo
-                </button>
-                <button
-                  type="button"
-                  className="btn ghost sm"
-                  onClick={() =>
-                    loadExampleAccount().then((a) => {
-                      setAccountCompany(a.company);
-                      setAccountTargets(a.targets);
-                    })
-                  }
-                >
-                  Exemplo Acme
-                </button>
-              </div>
-              <button
-                type="button"
-                className="btn primary wide"
-                disabled={busy || !accountCompany.trim() || !network}
-                onClick={onFindAccount}
-              >
-                {busy ? "Mapeando conta…" : "Mapear conta inteira"}
-              </button>
-            </div>
-          )}
-
-          {error && <p className="flash err">{error}</p>}
-          {status && !error && <p className="flash ok">{status}</p>}
-        </section>
-
-        <section className="results">
-          {!result && !accountResult && (
-            <div className="empty">
-              <h2>Prova do caminho</h2>
-              <p>
-                Quando {sellerName} nomear um alvo ou conta, mostramos a melhor ponte com
-                motivos concretos — não um score mágico.
-              </p>
-            </div>
-          )}
-
-          {accountResult && workspaceMode === "account" && (
-            <div className="bucket account-roster">
-              <h3>Alvos em {accountResult.company}</h3>
-              <p className="hint">{accountResult.summary_line}</p>
-              {accountResult.targets.map((row) => (
-                <button
-                  key={row.id}
-                  type="button"
-                  className={`account-target-card ${
-                    activeAccountTargetId === row.id ? "selected" : ""
-                  } ${row.has_path ? "" : "no-path"}`}
-                  onClick={() => selectAccountTarget(row)}
-                >
-                  <div className="bridge-top">
-                    <strong>
-                      {row.name}
-                      {row.title ? ` · ${row.title}` : ""}
-                    </strong>
-                    <span className={`band ${row.has_path ? row.top_confidence || "medium" : "low"}`}>
-                      {row.has_path ? confidenceLabel(row.top_confidence || "medium") : "Sem ponte"}
-                    </span>
-                  </div>
-                  <p className="meta account-proof">{row.proof_line}</p>
-                  {row.top_bridge_name && (
-                    <p className="meta">via {row.top_bridge_name}</p>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {result && (
-            <>
-              {result.direct.length > 0 && (
-                <div className="bucket">
-                  <h3>Já na sua rede</h3>
-                  {result.direct.map((b) => (
-                    <BridgeCard
-                      key={b.contact_id}
-                      bridge={b}
-                      selected={selected?.contact_id === b.contact_id}
-                      onSelect={() => setSelected(b)}
-                    />
-                  ))}
-                </div>
+      <Container maxWidth="lg" sx={{ mt: 3 }}>
+        <Collapse in={historyOpen}>
+          <Paper sx={{ p: 2, mb: 2 }}>
+            <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+              <Typography variant="h3">Dossiê</Typography>
+              {outcomes.length > 0 && (
+                <Button size="small" onClick={clearReachHistory}>
+                  Limpar
+                </Button>
               )}
+            </Stack>
+            {outcomes.length === 0 ? (
+              <Typography color="text.secondary">Ainda vazio — marque status após enviar.</Typography>
+            ) : (
+              <Stack spacing={1}>
+                {outcomes.map((ev) => (
+                  <Stack
+                    key={ev.id}
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1}
+                    sx={{ alignItems: { sm: "baseline" } }}
+                  >
+                    <Chip size="small" label={STATUS_LABEL_PT[ev.status]} color="primary" />
+                    <Typography variant="body2" sx={{ flex: 1 }}>
+                      {ev.bridgeName} → {ev.targetName}
+                      {ev.accountCompany ? ` · ${ev.accountCompany}` : ""}
+                    </Typography>
+                    <Typography variant="caption">{formatReachWhen(ev.at)}</Typography>
+                  </Stack>
+                ))}
+              </Stack>
+            )}
+          </Paper>
+        </Collapse>
 
-              <div className="bucket">
-                <h3>Pontes quentes</h3>
-                {result.bridges.length === 0 && (
-                  <p className="hint">
-                    Nenhuma ponte forte. Enriqueça notas, marque strength=high no celular,
-                    ou importe mais gente da empresa alvo.
-                  </p>
+        {(network || result) && (
+          <Box component={motion.div} {...fade}>
+            <SpiderBoard
+              sellerName={sellerName}
+              sellerTitle={sellerPinTitle}
+              sellerCompany={sellerPinCompany}
+              sellerLinkedin={sellerLinkedin}
+              sellerPhoto={sellerPhoto}
+              targetPhoto={targetPhoto}
+              networkContacts={network?.contacts ?? []}
+              result={
+                workspaceMode === "account" && accountResult && !activeAccountTargetId
+                  ? null
+                  : result
+              }
+              selectedId={selected?.contact_id ?? null}
+              onSelectBridge={setSelected}
+              targetLinkedin={targetLinkedin}
+            />
+          </Box>
+        )}
+
+        <Grid container spacing={2} sx={{ alignItems: "flex-start" }}>
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Card>
+              <CardContent>
+                <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                  <Typography variant="overline" color="text.secondary">
+                    Briefing
+                  </Typography>
+                  <Stack direction="row" spacing={1}>
+                    {(restored || isDemo || network) && (
+                      <Button size="small" startIcon={<ClearIcon />} onClick={resetSession}>
+                        Limpar
+                      </Button>
+                    )}
+                  </Stack>
+                </Stack>
+
+                {isDemo && (
+                  <Alert severity="warning" sx={{ mb: 2 }}>
+                    Modo demo (eval) — não é sua rede real. Produção = sessão LinkedIn automática.
+                  </Alert>
                 )}
-                {result.bridges.map((b) => (
-                  <BridgeCard
-                    key={b.contact_id}
-                    bridge={b}
-                    selected={selected?.contact_id === b.contact_id}
-                    onSelect={() => setSelected(b)}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </section>
-      </main>
 
-      {selected && tutor && (
-        <aside className="ask-dock animate-in" ref={askRef}>
-          <div className={`tutor ${tutorClass(tutor.level)}`}>
-            <div className="tutor-head">
-              <span className="tutor-q">Posso pedir intro?</span>
-              <span className={`tutor-badge ${tutorClass(tutor.level)}`}>
-                {tutorLevelLabel(tutor.level, locale)}
-              </span>
-            </div>
-            <p className="tutor-headline">{tutor.headline}</p>
-            <ul className="tutor-bullets">
-              {tutor.bullets.map((b) => (
-                <li key={b}>{b}</li>
-              ))}
-            </ul>
-          </div>
+                <Alert severity={sessionAlertSeverity} sx={{ mb: 2 }}>
+                  <Typography sx={{ fontWeight: 700 }}>Sessão LinkedIn</Typography>
+                  <Typography variant="body2">
+                    {sessionStatus?.ready
+                      ? "Camoufox pronto — mutuals ao vivo via scrape."
+                      : sessionStatus?.account?.configured
+                        ? "Conta configurada — sessão headless na subida."
+                        : "Cole no chat: email LinkedIn + senha + Gmail App Password."}
+                  </Typography>
+                  <Button
+                    size="small"
+                    sx={{ mt: 1 }}
+                    onClick={() => setSessionStatusOpen((o) => !o)}
+                  >
+                    {sessionStatusOpen ? "Ocultar detalhes" : "Detalhes sessão"}
+                  </Button>
+                  <Collapse in={sessionStatusOpen}>
+                    <Box sx={{ mt: 1 }}>
+                      {(sessionStatus?.hints || []).slice(0, 5).map((h) => (
+                        <Typography key={h} variant="caption" sx={{ display: "block" }}>
+                          · {h}
+                        </Typography>
+                      ))}
+                    </Box>
+                  </Collapse>
+                </Alert>
 
-          <div className="ask-body">
-            <header className="ask-head">
-              <div>
-                <p className="ask-mode">{modeLabel(selected.mode)}</p>
-                <p className="ask-path">{selected.path_label}</p>
-              </div>
-              <span className={`band ${selected.confidence}`}>
-                {confidenceLabel(selected.confidence)}
-              </span>
-            </header>
-            <pre className="ask-message">{selected.message || "Sem mensagem gerada."}</pre>
-            <div className="ask-actions">
-              <button
-                type="button"
-                className={`btn primary ${copied ? "copied" : ""}`}
-                disabled={!selected.message}
-                onClick={() => selected.message && copyMessage(selected.message)}
-              >
-                {copied ? "Copiado ✓" : "Copiar mensagem"}
-              </button>
-              {waLink && (
-                <a
-                  className="btn wa"
-                  href={waLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={onOpenWhatsApp}
-                >
-                  Abrir WhatsApp
-                </a>
-              )}
-              {selected.linkedin_url && (
-                <a
-                  className="btn ghost"
-                  href={selected.linkedin_url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  LinkedIn
-                </a>
-              )}
-            </div>
-            <div className="outcome-chips" role="group" aria-label="Status do alcance">
-              <span className="outcome-label">Status</span>
-              {CHIP_STATUSES.map((st) => (
-                <button
-                  key={st}
-                  type="button"
-                  className={`chip ${latestForSelected?.status === st ? "on" : ""}`}
-                  onClick={() => {
-                    recordReach(st);
-                    setStatus(`${STATUS_LABEL_PT[st]} · ${selected.name}`);
-                  }}
-                >
-                  {STATUS_LABEL_PT[st]}
-                </button>
-              ))}
-            </div>
-            {latestForSelected && (
-              <p className="outcome-latest">
-                Último: {STATUS_LABEL_PT[latestForSelected.status]} ·{" "}
-                {formatReachWhen(latestForSelected.at)}
-              </p>
-            )}
-            {result && <p className="ask-note">{result.note}</p>}
-          </div>
-        </aside>
-      )}
+                <Button size="small" onClick={() => setLegacyImportOpen((o) => !o)} sx={{ mb: 1 }}>
+                  Legado · CSV import (deprecated)
+                </Button>
+                <Collapse in={legacyImportOpen}>
+                  <Stack spacing={1.5} sx={{ mb: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Fallback offline — produção usa scrape LinkedIn (mutuals).
+                    </Typography>
+                    <TextField
+                      multiline
+                      minRows={3}
+                      fullWidth
+                      value={networkPaste}
+                      onChange={(e) => setNetworkPaste(e.target.value)}
+                      placeholder="Connections.csv, celular ou cartões…"
+                    />
+                    <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        disabled={busy || !networkPaste.trim()}
+                        onClick={() => void onImport()}
+                      >
+                        Importar · {network?.contacts?.length ?? 0}
+                      </Button>
+                    </Stack>
+                  </Stack>
+                </Collapse>
 
-      <footer className="site-footer">
-        <span>Você envia · nós achamos a ponte</span>
-        <code>warm-bridge serve</code>
-      </footer>
-    </div>
+                <Divider sx={{ mb: 2 }} />
+
+                <Tabs
+                  value={workspaceMode}
+                  onChange={(_, v: WorkspaceMode) => setWorkspaceMode(v)}
+                  sx={{ mb: 2, minHeight: 40 }}
+                >
+                  <Tab value="single" label="Alvo único" />
+                  <Tab value="account" label="Conta" />
+                </Tabs>
+
+                <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
+                  2 · Alvo · {sellerLabel}
+                </Typography>
+
+                {workspaceMode === "single" ? (
+                  <Stack spacing={1.5}>
+                    <TextField
+                      label="LinkedIn do alvo"
+                      fullWidth
+                      required
+                      value={targetLinkedin}
+                      onChange={(e) => setTargetLinkedin(e.target.value)}
+                      placeholder="https://www.linkedin.com/in/…"
+                    />
+                    <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+                      <TextField
+                        label="Nome (opcional — preenchido no scrape)"
+                        fullWidth
+                        value={targetName}
+                        onChange={(e) => setTargetName(e.target.value)}
+                      />
+                      <TextField
+                        label="Empresa"
+                        fullWidth
+                        value={targetCompany}
+                        onChange={(e) => setTargetCompany(e.target.value)}
+                      />
+                    </Stack>
+                    <TextField
+                      label="Cargo"
+                      fullWidth
+                      value={targetTitle}
+                      onChange={(e) => setTargetTitle(e.target.value)}
+                    />
+                    <TextField
+                      select
+                      label="Idioma"
+                      value={locale}
+                      onChange={(e) => setLocale(e.target.value)}
+                      sx={{ maxWidth: 140 }}
+                    >
+                      <MenuItem value="pt">PT</MenuItem>
+                      <MenuItem value="en">EN</MenuItem>
+                    </TextField>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      fullWidth
+                      startIcon={<LinkedInIcon />}
+                      disabled={busy || !targetLinkedin.trim()}
+                      onClick={() => void onMapear()}
+                    >
+                      {busy ? "Mapeando…" : "Mapear"}
+                    </Button>
+                    <Typography variant="caption" color="text.secondary">
+                      Mutuals observados + enrich + pesquisa pública citada — zero CSV.
+                    </Typography>
+                  </Stack>
+                ) : (
+                  <Stack spacing={1.5}>
+                    <TextField
+                      label="Empresa / conta"
+                      fullWidth
+                      value={accountCompany}
+                      onChange={(e) => setAccountCompany(e.target.value)}
+                    />
+                    {accountTargets.map((t) => (
+                      <Stack key={t.id} direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                        <TextField
+                          label="Nome"
+                          fullWidth
+                          value={t.name}
+                          onChange={(e) => updateAccountTarget(t.id, { name: e.target.value })}
+                        />
+                        <TextField
+                          label="Cargo"
+                          fullWidth
+                          value={t.title}
+                          onChange={(e) => updateAccountTarget(t.id, { title: e.target.value })}
+                        />
+                        <IconButton
+                          aria-label="Remover"
+                          disabled={accountTargets.length <= 1}
+                          onClick={() => removeAccountTarget(t.id)}
+                        >
+                          <DeleteOutlineIcon />
+                        </IconButton>
+                      </Stack>
+                    ))}
+                    <Stack direction="row" spacing={1}>
+                      <Button size="small" startIcon={<AddIcon />} onClick={addAccountTarget}>
+                        Alvo
+                      </Button>
+                      <Button
+                        size="small"
+                        onClick={() =>
+                          loadExampleAccount().then((a) => {
+                            setAccountCompany(a.company);
+                            setAccountTargets(a.targets);
+                          })
+                        }
+                      >
+                        Exemplo 3S
+                      </Button>
+                    </Stack>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      disabled={busy || !accountCompany.trim() || !network}
+                      onClick={() => void onFindAccount()}
+                    >
+                      Mapear conta inteira
+                    </Button>
+                  </Stack>
+                )}
+
+                <Divider sx={{ my: 2 }} />
+                <Button size="small" onClick={() => setAdvancedOpen((o) => !o)}>
+                  Avançado · demo eval / seller YAML
+                </Button>
+                <Collapse in={advancedOpen}>
+                  <Stack spacing={1.5} sx={{ mt: 1.5 }}>
+                    <Button component="label" size="small">
+                      Seller YAML · {sellerLabel}
+                      <input
+                        type="file"
+                        hidden
+                        accept=".yaml,.yml,.json"
+                        onChange={(e) => void onUploadSeller(e.target.files?.[0] ?? null)}
+                      />
+                    </Button>
+                    <TextField
+                      label="Seu LinkedIn (auto de secrets se vazio)"
+                      fullWidth
+                      value={sellerLinkedin}
+                      onChange={(e) => patchSellerLinkedin(e.target.value)}
+                      placeholder="https://www.linkedin.com/in/…"
+                    />
+                    <Button
+                      size="small"
+                      startIcon={<PlayArrowIcon />}
+                      disabled={busy}
+                      onClick={() => void loadDemo()}
+                    >
+                      Demo eval (dev)
+                    </Button>
+                  </Stack>
+                </Collapse>
+
+                {insight && (
+                  <Paper sx={{ mt: 2, p: 1.5 }}>
+                    <Typography variant="overline">Insights públicos</Typography>
+                    {insight.empty ? (
+                      <Typography variant="body2" color="text.secondary">
+                        {insight.note}
+                      </Typography>
+                    ) : (
+                      <Stack spacing={1} sx={{ mt: 1 }}>
+                        {insight.items.slice(0, 5).map((item) => (
+                          <Box key={item.url}>
+                            <Link href={item.url} target="_blank" rel="noreferrer" variant="body2">
+                              {item.title}
+                            </Link>
+                            {item.snippet && (
+                              <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                                {item.snippet}
+                              </Typography>
+                            )}
+                          </Box>
+                        ))}
+                      </Stack>
+                    )}
+                  </Paper>
+                )}
+
+                {error && (
+                  <Alert severity="error" sx={{ mt: 2 }}>
+                    {error}
+                  </Alert>
+                )}
+                {status && !error && (
+                  <Alert severity="success" sx={{ mt: 2 }} icon={false}>
+                    <Typography variant="body2" sx={{ fontFamily: "IBM Plex Mono, monospace" }}>
+                      {status}
+                    </Typography>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Card>
+              <CardContent>
+                {!result && !accountResult && (
+                  <Box sx={{ py: 3 }}>
+                    <Typography variant="h2" gutterBottom>
+                      {network ? "Caso montado" : "Comece aqui"}
+                    </Typography>
+                    <Typography color="text.secondary" sx={{ mb: 2 }}>
+                      {network
+                        ? "Clique uma ponte no quadro ou na lista — o pedido abre abaixo."
+                        : "Importe Connections.csv no Briefing e clique Investigar."}
+                    </Typography>
+                  </Box>
+                )}
+
+                {accountResult && workspaceMode === "account" && (
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="overline">Suspeitos · {accountResult.company}</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      {accountResult.summary_line}
+                    </Typography>
+                    <Stack spacing={1}>
+                      {accountResult.targets.map((row) => (
+                        <Card
+                          key={row.id}
+                          variant="outlined"
+                          sx={{
+                            borderColor:
+                              activeAccountTargetId === row.id ? "primary.main" : "divider",
+                            boxShadow:
+                              activeAccountTargetId === row.id
+                                ? "inset 0 0 0 1px #007bc0"
+                                : undefined,
+                          }}
+                        >
+                          <CardActionArea onClick={() => selectAccountTarget(row)}>
+                            <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
+                              <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+                                <Typography sx={{ fontWeight: 700 }}>{row.name}</Typography>
+                                <Chip
+                                  size="small"
+                                  label={
+                                    row.has_path
+                                      ? confidenceLabel(row.top_confidence || "medium")
+                                      : "Sem ponte"
+                                  }
+                                  color={bandColor(row.top_confidence || "low")}
+                                />
+                              </Stack>
+                              <Typography variant="body2" color="text.secondary">
+                                {row.proof_line}
+                              </Typography>
+                            </CardContent>
+                          </CardActionArea>
+                        </Card>
+                      ))}
+                    </Stack>
+                  </Box>
+                )}
+
+                {result && (
+                  <>
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      sx={{ justifyContent: "space-between", mb: 1.5, gap: 1 }}
+                    >
+                      <Typography variant="h3">Lista do caso</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {selected
+                          ? "Pedido abaixo · clique outra ponte para trocar"
+                          : "Clique no pin ou na lista"}
+                      </Typography>
+                    </Stack>
+                    {result.direct.length > 0 && (
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="overline">Já na sua rede</Typography>
+                        {result.direct.map((b) => (
+                          <BridgeCard
+                            key={b.contact_id}
+                            bridge={b}
+                            selected={selected?.contact_id === b.contact_id}
+                            onSelect={() => setSelected(b)}
+                          />
+                        ))}
+                      </Box>
+                    )}
+                    {result.bridges.length > 0 && (
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="overline">Pontes quentes</Typography>
+                        {result.bridges.map((b) => (
+                          <BridgeCard
+                            key={b.contact_id}
+                            bridge={b}
+                            selected={selected?.contact_id === b.contact_id}
+                            onSelect={() => setSelected(b)}
+                          />
+                        ))}
+                      </Box>
+                    )}
+
+                    {selected?.message && (
+                      <Paper
+                        ref={askRef as React.RefObject<HTMLDivElement>}
+                        sx={{
+                          mt: 2,
+                          p: 2,
+                          bgcolor: "#05072e",
+                          color: "#fff",
+                          borderTop: "3px solid",
+                          borderColor: "primary.light",
+                        }}
+                      >
+                        {tutor && (
+                          <Alert
+                            severity={
+                              tutor.level === "yes"
+                                ? "success"
+                                : tutor.level === "soft"
+                                  ? "warning"
+                                  : "error"
+                            }
+                            sx={{ mb: 2, bgcolor: "rgba(255,255,255,0.06)" }}
+                          >
+                            <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 0.5 }}>
+                              <Typography sx={{ fontWeight: 700 }}>
+                                Posso pedir intro? · {tutorLevelLabel(tutor.level, locale)}
+                              </Typography>
+                              {favorHit && (
+                                <Chip
+                                  size="small"
+                                  color="warning"
+                                  label="já pediu recentemente"
+                                  sx={{ height: 22 }}
+                                />
+                              )}
+                            </Stack>
+                            <Typography variant="body2">{tutor.headline}</Typography>
+                            <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                              {tutor.bullets.map((x) => (
+                                <li key={x}>
+                                  <Typography variant="body2">{x}</Typography>
+                                </li>
+                              ))}
+                            </Box>
+                          </Alert>
+                        )}
+                        <Stack direction="row" sx={{ justifyContent: "space-between", mb: 1 }}>
+                          <Box>
+                            <Typography variant="overline" sx={{ color: "rgba(255,255,255,0.55)" }}>
+                              {modeLabel(selected.mode)}
+                            </Typography>
+                            <Typography sx={{ color: "primary.light", fontWeight: 600 }}>
+                              {selected.path_label}
+                            </Typography>
+                          </Box>
+                          <Chip
+                            size="small"
+                            label={confidenceLabel(selected.confidence)}
+                            color={bandColor(selected.confidence)}
+                          />
+                        </Stack>
+                        <Paper
+                          sx={{
+                            p: 1.5,
+                            mb: 1.5,
+                            bgcolor: "rgba(255,255,255,0.06)",
+                            color: "inherit",
+                            fontFamily: "IBM Plex Mono, monospace",
+                            fontSize: "0.85rem",
+                            whiteSpace: "pre-wrap",
+                          }}
+                        >
+                          {selected.message}
+                        </Paper>
+                        <Stack direction="row" useFlexGap sx={{ flexWrap: "wrap", gap: 1, mb: 1.5 }}>
+                          <Button
+                            variant="contained"
+                            startIcon={<ContentCopyIcon />}
+                            color={copied ? "success" : "primary"}
+                            onClick={() => void copyMessage(selected.message || "")}
+                          >
+                            {copied ? "Copiado" : "Copiar"}
+                          </Button>
+                          {waLink ? (
+                            <Button
+                              variant="outlined"
+                              href={waLink}
+                              target="_blank"
+                              rel="noreferrer"
+                              startIcon={<ChatIcon />}
+                              onClick={onOpenWhatsApp}
+                              sx={{ color: "#fff", borderColor: "rgba(255,255,255,0.35)" }}
+                            >
+                              WhatsApp
+                            </Button>
+                          ) : null}
+                          {bridgeLinkedin ? (
+                            <Button
+                              variant="outlined"
+                              href={bridgeLinkedin}
+                              target="_blank"
+                              rel="noreferrer"
+                              startIcon={<LinkedInIcon />}
+                              sx={{ color: "#fff", borderColor: "rgba(255,255,255,0.35)" }}
+                            >
+                              LinkedIn
+                            </Button>
+                          ) : null}
+                        </Stack>
+                        <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>
+                          Status do alcance
+                        </Typography>
+                        <Stack direction="row" useFlexGap sx={{ flexWrap: "wrap", gap: 0.75, mt: 0.5 }}>
+                          {CHIP_STATUSES.map((st) => (
+                            <Chip
+                              key={st}
+                              size="small"
+                              label={STATUS_LABEL_PT[st]}
+                              onClick={() => recordReach(st)}
+                              color={latestForSelected?.status === st ? "primary" : "default"}
+                              variant={latestForSelected?.status === st ? "filled" : "outlined"}
+                              sx={{
+                                color: "#fff",
+                                borderColor: "rgba(255,255,255,0.3)",
+                              }}
+                            />
+                          ))}
+                        </Stack>
+                      </Paper>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        <Stack
+          direction="row"
+          useFlexGap
+          sx={{ justifyContent: "space-between", mt: 4, flexWrap: "wrap", gap: 1, color: "text.secondary" }}
+        >
+          <Typography variant="caption">Lead Police · Warm Bridge</Typography>
+          <Typography variant="caption">
+            Craft:{" "}
+            <Link href="https://rwd-dashboard.solutions.iqvia.com/public" target="_blank" rel="noreferrer">
+              RWD Connect
+            </Link>{" "}
+            · MUI
+          </Typography>
+        </Stack>
+      </Container>
+    </Box>
   );
 }
 
@@ -816,27 +1425,45 @@ function BridgeCard({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const src = resolvePortrait({
+    name: bridge.name,
+    photo: bridge.photo,
+    avatar_url: bridge.avatar_url,
+    linkedin_url: bridge.linkedin_url,
+  });
   return (
-    <button
-      type="button"
-      className={`bridge-card ${selected ? "selected" : ""}`}
-      onClick={onSelect}
+    <Card
+      variant="outlined"
+      sx={{
+        mb: 1,
+        borderColor: selected ? "primary.main" : "divider",
+        boxShadow: selected ? "inset 0 0 0 1px #007bc0" : undefined,
+        transition: "transform 0.2s, box-shadow 0.2s",
+        "&:hover": { transform: "translateY(-1px)" },
+      }}
     >
-      <div className="bridge-top">
-        <strong>{bridge.path_label}</strong>
-        <span className={`band ${bridge.confidence}`}>
-          {confidenceLabel(bridge.confidence)}
-        </span>
-      </div>
-      <p className="meta">
-        {bridge.title || "Sem cargo"}
-        {bridge.company ? ` · ${bridge.company}` : ""} · {modeLabel(bridge.mode)}
-      </p>
-      <ul className="why">
-        {bridge.why.slice(0, 3).map((w) => (
-          <li key={w}>{w}</li>
-        ))}
-      </ul>
-    </button>
+      <CardActionArea onClick={onSelect}>
+        <CardContent sx={{ py: 1.25, "&:last-child": { pb: 1.25 } }}>
+          <Stack direction="row" spacing={1.25} sx={{ alignItems: "center" }}>
+            <Avatar src={src} alt="" sx={{ width: 40, height: 40 }} />
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Stack direction="row" sx={{ justifyContent: "space-between", gap: 1 }}>
+                <Typography noWrap sx={{ fontWeight: 700 }}>
+                  {bridge.name}
+                </Typography>
+                <Chip
+                  size="small"
+                  label={confidenceLabel(bridge.confidence)}
+                  color={bandColor(bridge.confidence)}
+                />
+              </Stack>
+              <Typography variant="body2" color="text.secondary" noWrap>
+                {[bridge.title, bridge.company].filter(Boolean).join(" · ")}
+              </Typography>
+            </Box>
+          </Stack>
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 }

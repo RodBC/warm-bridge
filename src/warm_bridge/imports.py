@@ -50,8 +50,11 @@ def contact_from_fields(
     tags: list[str] | None = None,
     last_touch_days: int | None = None,
     contact_id: str | None = None,
+    avatar_url: str = "",
+    photo: str = "",
 ) -> dict[str, Any]:
-    return {
+    pic = (avatar_url or photo or "").strip()
+    out: dict[str, Any] = {
         "id": contact_id or _gid(),
         "name": name.strip() or "Unknown",
         "first_name": _first_name(name),
@@ -68,6 +71,10 @@ def contact_from_fields(
         "email": email.strip(),
         "phone": phone.strip(),
     }
+    if pic:
+        out["avatar_url"] = pic
+        out["photo"] = pic
+    return out
 
 
 def parse_linkedin_connections_csv(content: str) -> list[dict[str, Any]]:

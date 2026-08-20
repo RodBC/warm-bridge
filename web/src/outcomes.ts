@@ -128,3 +128,22 @@ export function formatReachWhen(iso: string): string {
     return iso;
   }
 }
+
+const FAVOR_STATUSES: readonly ReachStatus[] = ["sent", "intro_landed"] as const;
+
+/** Recent ask on this bridge (favor-bank cooldown). */
+export function recentFavorAsk(
+  bridgeId: string,
+  events: ReachEvent[],
+  withinDays = 14,
+): ReachEvent | null {
+  const cutoff = Date.now() - withinDays * 24 * 60 * 60 * 1000;
+  for (const ev of events) {
+    if (ev.bridgeId !== bridgeId) continue;
+    if (!FAVOR_STATUSES.includes(ev.status)) continue;
+    const t = Date.parse(ev.at);
+    if (Number.isNaN(t) || t < cutoff) continue;
+    return ev;
+  }
+  return null;
+}

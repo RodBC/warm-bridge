@@ -25,8 +25,9 @@ History is short and intentional. Treat each commit as a **layer**, not a random
 | `821f3a2` | `docs: sequence NET long-arc in AGENTS north star` | **Contract alignment** | Put NET sequencing in AGENTS so agents don’t build radar/graph ahead of the wedge. |
 | `4c4f8f9` | `feat: send-ready workspace and account multi-target map` | **Wedge UX + account map** | Strength tutoring, localStorage session, ask dock, `accounts.py` + `/api/find-account` — one commit (files were entangled). |
 | `c12b62c` | `feat: outcome / reach logging` | **NET memory foundation** | Browser-first reach history + status chips; thin `POST /api/outcomes` validate/echo; no server PII store. |
+| *(this commit)* | `feat: LinkedIn-first session + Career Fit OTP bootstrap` | **Primary graph + auto login** | Camoufox `linkedin_session` primary; CSV legacy; burner state machine port; IMAP App Password OTP; research insight; Mapear UI; secrets gitignored. |
 
-**Invariant across all layers:** user-owned CSV/paste intake · deterministic score → explain → template ask · you send · no LinkedIn harvester · no fake `% fit` · direct ≠ bridge buckets.
+**Invariant across layers:** session-observed graph (Camoufox primary; CSV demoted) · deterministic score → explain → template ask · you send · never invent mutuals · no fake `% fit` · direct ≠ bridge buckets.
 
 When you add a meaningful feature, **extend this ledger** in the same table (one row, commit hash after push if known).
 
@@ -39,7 +40,7 @@ playbook/ + profile/ + corpus/ + prompts/     ← IP & rules (edit carefully)
         ↓
 src/warm_bridge/{models,paths,approach}      ← score + draft path
         ↓
-src/warm_bridge/{imports,resolve,explain,tutor,accounts,outcomes}  ← ingest + identity + proof + tutoring + account map + reach schema
+src/warm_bridge/{linkedin_session,imports,resolve,explain,tutor,accounts,outcomes}  ← Camoufox session/CSV ingest + identity + proof + tutoring + account map + reach schema
         ↓
 src/warm_bridge/{cli,api}                    ← entrypoints (same core)
         ↓
@@ -61,7 +62,9 @@ docs/ + AGENTS.md + .cursor/                 ← product memory & agent contract
 | `playbook/approach-rules.md` | Anti-spam-through-friend craft | Constrains drafts + future LLM polish | Bypass when “just generating” |
 | `playbook/structure.md` | Message skeleton (greeting→out) | Keeps WhatsApp/DM shape stable | Free-form novel message shapes |
 | `profile/schema.yaml` | Seller + network contract | Document expected fields | Untagged free prose as source of truth |
-| `profile/example.*.yaml` | Safe demo seller/network | UI/API default when no `data/` | Commit real PII here |
+| `profile/example.seller.yaml` | Demo seller (Rodrigo / Lead Police) | UI/API default when no `data/` | Commit real PII beyond public LinkedIn URL |
+| `profile/example.network.yaml` | Eval / Marina Acme graph | Stable eval fixture | Break evals by swapping for Lead Police case |
+| `profile/example.lead-police.yaml` | UI demo graph → Sabrina | `/api/example-network`; fictional bridges | Treat demo edges as real mutuals |
 | `profile/example.account.yaml` | Demo account (multi-target) | Account workspace default | Commit real account PII |
 | `data/` | Local runtime network/seller YAML | gitignored user data | Commit `network.yaml` / `seller.yaml` |
 | `corpus/examples/` | Anonymized ask samples + CSV samples | Teaching + eval grounding | Treat as live user data |
@@ -71,7 +74,9 @@ docs/ + AGENTS.md + .cursor/                 ← product memory & agent contract
 | `web/` | Vite React funnel | Human happy path Rede→Alvo→Pontes→Pedir | Business rules or scrapers |
 | `docs/` | Product + architecture + this map | Durable decisions | Leave decisions only in chat |
 | `docs/context/` | Live handoff (`CURRENT.md` + logs) | Multi-agent continuity | Delete historical log entries |
-| `docs/sources.yaml` | Green/yellow/red intake tiers | Policy for every new adapter | Ship red-tier in public core |
+| `docs/sources.yaml` | Green/yellow/red intake tiers | Policy for every new adapter | Invent edges or mass-send (red) |
+| `docs/LINKEDIN_SESSION.md` | Camoufox profile + burner OTP ops + mock | Session setup for optional map | Commit cookies / passwords / secrets |
+| `docs/LINKEDIN_SELENIUM.md` | Deprecated pointer to LINKEDIN_SESSION | Legacy selenium backend note | — |
 | `docs/entrep-transfer.md` | Steal/reject from entrep | Identity/Pulse patterns only | Fork scrapers or Streamlit UI |
 | `.cursor/rules/` + `.cursor/skills/` | Always-on + task skills | Encode conventions agents must follow | Invent conflicting one-off rules |
 
@@ -86,14 +91,17 @@ Private PII stays in `data/` (gitignored) or the user’s machine — never in c
 | `models.py` | Shared types + YAML load + `ROOT` | `Target`, `RankedBridge`, `load_yaml` | One truth for CLI/API |
 | `paths.py` | Deterministic bridge scoring + mode pick | `find_bridges`, `score_contact`, `_pick_mode` | Pure, fast, eval-friendly; playbook-driven |
 | `approach.py` | Template asks (PT/EN) | `build_approach`, `approaches_for_ranked`, `TEMPLATES_PT` | Drafts only; user sends |
-| `imports.py` | LinkedIn CSV / phone CSV / paste → contacts | `detect_and_parse`, `parse_*`, `merge_networks` | User-owned intake; no scrape |
+| `imports.py` | LinkedIn CSV / phone CSV / paste → contacts | `detect_and_parse`, `parse_*`, `merge_networks` | Fallback intake; Selenium is primary |
 | `resolve.py` | Target vs graph identity | `resolve_target`, `Resolution` (CONFIRMED / LIKELY / NOT_IN_GRAPH) | Entrep audit pattern; never invent people |
 | `explain.py` | Path proof + confidence bands + why | `enrich_ranked`, `confidence_band`, `path_label` | Pulse-style “show the proof”; no fake % |
 | `tutor.py` | Strength tutoring (“posso pedir intro?”) | `strength_advice`, `attach_tutor` | Plain-language gates from strength+mode; never invent closeness |
-| `accounts.py` | Account workspace (multi-target) | `build_find_result`, `find_account`, `proof_line` | One find pipeline; map N buyers at same company |
+| `linkedin.py` | LinkedIn URL parse / normalize | `linkedin_slug`, `resolve_target_fields` | Identity helpers only — **no fetch** |
+| `linkedin_session/` | Camoufox session mutuals → contacts | `map_target`, `fetch_mutuals`, `mock`, `session_status`, `burner/` (Career Fit login state machine + IMAP OTP) | Thin yellow adapter; headless burner OTP; never invent mutuals |
+| `research/` | Public web insight on target/company | `research_target`, `search_public` | Cited snippets; never invent people |
+| `accounts.py` | Account workspace + `build_find_result` | `build_find_result`, `find_account`, `proof_line` | Optional `insight_pack` on asks |
 | `outcomes.py` | Reach event validate/normalize | `ALLOWED_STATUSES`, `normalize_event`, `validate_events` | Schema for NET memory; never invent replies; no server persist yet |
-| `cli.py` | argparse commands | `find`, `approach`, `import`, `eval`, `profile`, `serve` | Power-user + scripts |
-| `api.py` | FastAPI on `:8788` | `/api/find`, `/api/import-network`, … | Thin HTTP over the same functions as CLI |
+| `cli.py` | argparse commands | `find`, `approach`, `import`, `linkedin-map`, `burner-login`, `session-login`, `eval`, `profile`, `serve` | Power-user + scripts |
+| `api.py` | FastAPI on `:8788` | `/api/find`, `/api/linkedin-map`, … | Thin HTTP over the same functions as CLI |
 | `__main__.py` | `python -m warm_bridge` | — | Package entry |
 
 ### Critical find path (do not fork)
@@ -110,6 +118,7 @@ network (YAML | import text | API body)
 Import path:
 
 ```
+Selenium session → linkedin_session.map_target → contacts[] → build_find_result
 raw CSV/paste → imports.detect_and_parse → contacts[] → (CLI writes data/network.yaml | API returns merged network)
 ```
 
@@ -118,11 +127,15 @@ raw CSV/paste → imports.detect_and_parse → contacts[] → (CLI writes data/n
 | Method | Path | Core call |
 |--------|------|-----------|
 | GET | `/api/health` | liveness |
+| GET | `/api/linkedin-session/status` | `session_status()` — optional Camoufox/Selenium |
+| POST | `/api/research` | `research_target()` — public insight pack |
+| POST | `/api/investigate` | find + research — **primary wedge** |
 | GET | `/api/example-seller` | load `profile/example.seller.yaml` |
-| GET | `/api/example-network` | load `profile/example.network.yaml` |
+| GET | `/api/example-network` | load Lead Police **offline demo** (`example.lead-police.yaml` — real public LI profiles, labeled) |
 | POST | `/api/import-network` | `detect_and_parse` + optional `merge_networks` |
 | POST | `/api/resolve-target` | `resolve_target` |
 | POST | `/api/find` | `build_find_result` |
+| POST | `/api/linkedin-map` | `map_target` → enrich seller/target → `build_find_result` (**canonical board source**) |
 | POST | `/api/find-account` | `find_account` (N targets, shared company) |
 | GET | `/api/example-account` | load `profile/example.account.yaml` |
 | POST | `/api/outcomes` | `validate_events` — echo only; client is source of truth |
@@ -136,15 +149,20 @@ CORS allows Vite `:5174` (and `:5173` sibling). Adding a new capability: impleme
 
 | File | Role | Why |
 |------|------|-----|
-| `src/App.tsx` | Send-ready workspace funnel | Proof hero, bridge list, strength tutor, fixed ask dock (copy + WhatsApp + outcome chips) |
-| `src/api.ts` | Typed `fetch` + `whatsAppUrl` | No business logic; mirror API contracts |
-| `src/storage.ts` | `localStorage` session v2 | Persist network/seller/target/account roster + account map results |
-| `src/outcomes.ts` | Reach history (last 20) | Browser-first NET memory; auto-log `copied`; status chips |
-| `src/tutor.ts` | Client fallback for `tutor` payload | Mirrors server when API older |
-| `src/styles.css` | Field-first layout + motion | Sticky setup, fixed ask dock, slide-up proof |
+| `src/theme.ts` | MUI theme (RWD tokens) | navy `#05072e`, blue `#007bc0`/`#00a3e0`, Noto Sans |
+| `src/App.tsx` | Send-ready workspace (MUI) | AppBar + Casos + Sessão LinkedIn panel; demo offline + Mapear LinkedIn; RWD navy/blue |
+| `src/SpiderBoard.tsx` | Investigation spider-web | Cork board, red yarn edges, person pins (CDN photo + title-company); LI button only if real URL |
+| `src/avatar.ts` | Portraits for pins | CDN `avatar_url` → allowlisted unavatar → initials; `boardLinkedInHref` → null for fakes |
+| `src/api.ts` | Typed fetch | `investigate`, `researchTarget`, `linkedInSessionStatus` |
+| `src/storage.ts` | `localStorage` session v8 | Persist network/seller/target/account; bump clears fictional cast |
+| `src/cases.ts` | Casos recentes (last 12) | Browser case memory; reopen target; no server PII |
+| `src/outcomes.ts` | Reach history (last 20) + favor lookback | Browser-first NET memory; auto-log `copied`; status chips |
+| `src/tutor.ts` | Client fallback + favor-bank | Mirrors server when API older; soft-blocks recent asks |
+| `src/styles.css` | Board-only CSS | Investigation board yarn/pins; chrome is MUI theme |
 | `vite.config.ts` | Dev server + API proxy | Proxies `/api` → `:8788` |
+| `scripts/validate_board_pins.py` | Pin contract harness | Asserts real `/in/` URLs, title/company, CDN photos after map |
 
-**UI status:** Send-ready wedge + **account workspace** + **reach history** (list, last 20). No spider-web NET yet.
+**UI status:** Send-ready wedge + **account workspace** + **reach history** + **Lead Police spider board** (cork + red yarn + person pins; actionable with list + ask dock).
 
 **Buckets in UI:** `bridges` vs `direct` come from API enrichment — keep them visually separate (“você já conhece” ≠ “pedir intro”).
 
@@ -169,7 +187,7 @@ CORS allows Vite `:5174` (and `:5173` sibling). Adding a new capability: impleme
 | Skill | Edit these first |
 |-------|------------------|
 | `warm-bridge-bridges` | `playbook/*`, `paths.py`, `resolve.py`, `explain.py`, `tutor.py`, `approach.py`, `outcomes.py`, `evals/`, `prompts/` |
-| `warm-bridge-sources` | `imports.py`, `docs/sources.yaml`, `docs/entrep-transfer.md`, future adapters |
+| `warm-bridge-sources` | `linkedin_session/*`, `imports.py`, `docs/sources.yaml`, `docs/LINKEDIN_SESSION.md` |
 | `warm-bridge-product` | `PRODUCT.md`, `ARCHITECTURE.md`, `CURRENT.md`, `accounts.py` for account scope — not random features |
 | `warm-bridge-context` | `CURRENT.md` + daily log (+ this map when layers change) |
 
@@ -182,14 +200,17 @@ CORS allows Vite `:5174` (and `:5173` sibling). Adding a new capability: impleme
 | New bridge type / weight | `playbook/bridge-types.yaml` + `paths.py` signals + `evals/cases.yaml` | Hardcoded strings in UI |
 | Mode gating (intro vs permission) | `playbook/modes.yaml` + `paths._pick_mode` | Always escalate to intro |
 | Ask wording / anti-spam craft | `playbook/approach-rules.md` + `approach.py` templates | Unconstrained LLM prompt only |
-| LinkedIn / phone / paste parse | `imports.py` (+ `docs/sources.yaml` row) | Headless LinkedIn login scrape |
-| Target already-in-graph detection | `resolve.py` | Inventing contacts outside import |
+| LinkedIn / phone / paste parse | `imports.py` (+ `docs/sources.yaml` row) — fallback only | Parallel scoring path |
+| Public web insight | `research/` → `/api/research` + `/api/investigate` + Insights UI | Inventing people from search hits |
+| Target already-in-graph detection | `resolve.py` | Inventing contacts outside import/session |
 | Path proof / confidence / why copy | `explain.py` (+ API `_proof_line`) | Fake “87% fit” meters |
 | New API capability | core module → `api.py` → `web/src/api.ts` → `App.tsx` | UI-only duplicate of Python logic |
 | Strength tutoring UX | `tutor.py` + `explain.enrich_ranked` + `web/src/tutor.ts` + ask dock in `App.tsx` | Invent closeness in UI copy |
 | Multi-target account workspace | `accounts.py` → `/api/find-account` → `App.tsx` account mode + `storage.ts` v2 | Separate scoring per target in UI |
-| Reach / outcome tracker (NET memory) | `outcomes.py` + `web/src/outcomes.ts` + ask-dock chips + Histórico; `POST /api/outcomes` validate only | Inventing replies; server PII DB this phase |
-| Opportunity radar / spider-web | Later NET phase — after outcome logging | Pretty graph with no next action |
+| Reach / outcome tracker (NET memory) | `outcomes.py` + `web/src/outcomes.ts` + `web/src/cases.ts` + ask-dock chips + Histórico; `POST /api/outcomes` validate only | Inventing replies; server PII DB this phase |
+| LinkedIn session readiness | `linkedin_session/session_status.py` → `GET /api/linkedin-session/status` + Briefing panel + `scripts/setup_camoufox_profile.sh` | Treating Chrome setup as README-only |
+| LinkedIn URL identity | `linkedin.py` + UI LinkedIn-first fields | Confusing with session scrape (that’s `linkedin_session`) |
+| Opportunity radar / spider-web | `web/src/SpiderBoard.tsx` + `avatar.ts` (path graph now); radar suggestions still later | Pretty graph with no next action; inventing edges |
 | vCard / Google Contacts | green adapter in `imports.py` when ready | Password scrape of Google |
 
 ---
@@ -198,15 +219,15 @@ CORS allows Vite `:5174` (and `:5173` sibling). Adding a new capability: impleme
 
 Documented so agents stop re-proposing them:
 
-1. Automated LinkedIn / phone-book harvesting in this public repo  
-2. Mass WhatsApp/DM send from our servers  
-3. Inventing mutuals, shared history, or relationship strength not in the import  
-4. Fake precision UI (“87% fit”) — use confidence bands + why bullets  
-5. Merging `direct` and `bridge` into one ranked list without labels  
-6. Spider-web / opportunity radar UI before reach/outcome memory exists  
-7. Vector DB / embeddings before the user’s graph needs them  
+1. Mass WhatsApp/DM send from our servers  
+2. Inventing mutuals, shared history, or relationship strength not observed by session/import  
+3. Fake precision UI (“87% fit”) — use confidence bands + why bullets  
+4. Merging `direct` and `bridge` into one ranked list without labels  
+5. ~~Spider-web / opportunity radar UI before reach/outcome memory exists~~ — path spider board shipped (Lead Police); opportunity *radar suggestions* still later  
+6. Vector DB / embeddings before the user’s graph needs them  
+7. Headless multi-account LinkedIn farms / credential stuffing  
 
-Rationale lives in `ARCHITECTURE.md` (LinkedIn + priorities) and `PRODUCT.md` (Ecosystem arc + non-goals).
+Rationale lives in `ARCHITECTURE.md`, `PRODUCT.md`, `AGENTS.md`, and `docs/LINKEDIN_SELENIUM.md` (yellow session intake is intentional; fabrication and mass-send stay banned).
 
 ---
 

@@ -11,6 +11,7 @@ from difflib import SequenceMatcher
 from typing import Any
 
 from .models import Target
+from .linkedin import linkedin_slug
 from .paths import _company_overlap, _name_match, _norm, _tokens
 
 
@@ -34,8 +35,19 @@ def _name_similarity(a: str, b: str) -> float:
 
 def resolve_target(network: dict[str, Any], target: Target) -> Resolution:
     """Find whether the decision-maker already sits in the imported graph."""
+    target_slug = linkedin_slug(target.linkedin_url) or linkedin_slug(target.name)
     candidates: list[tuple[float, dict[str, Any], str]] = []
     for contact in network.get("contacts") or []:
+        contact_slug = linkedin_slug(contact.get("linkedin_url") or contact.get("linkedin") or "")
+        if target_slug and contact_slug and target_slug == contact_slug:
+            candidates.append(
+                (
+                    1.0,
+                    contact,
+                    "linkedin profile match",
+                )
+            )
+            continue
         name_score = _name_similarity(contact.get("name") or "", target.name)
         if name_score < 0.55:
             continue

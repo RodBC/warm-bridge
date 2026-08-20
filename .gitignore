@@ -1,17 +1,29 @@
-# Private user data
+# Private user data / runtime
 data/network.yaml
 data/seller.yaml
 data/out/
+data/linkedin_session.yaml
+data/camoufox_profile/
+data/secrets/*
+!data/secrets/*.example
+data/chrome_profile/
+data/cookies/
+data/scrape_*.json
 *.pdf
 *.vcf
 contacts*.csv
 Connections*.csv
+
+# Local debug / scratch (screenshots, login dumps, insights drafts)
+tmp/
 
 # Python
 __pycache__/
 *.py[cod]
 *.egg-info/
 .venv/
+.venv-wb/
+.venv-linkedin/
 venv/
 .pytest_cache/
 .mypy_cache/

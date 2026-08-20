@@ -43,6 +43,7 @@ def build_find_result(
     locale: str = "pt",
     top_k: int = 8,
     with_approaches: bool = True,
+    insight_pack: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Single-target find — shared by /api/find and account workspace."""
     resolution = resolve_target(network, target)
@@ -53,14 +54,16 @@ def build_find_result(
     directs = [e for e in enriched if e["bucket"] == "direct"]
 
     if with_approaches and ranked:
-        approaches = approaches_for_ranked(seller, target, ranked, locale=locale)
+        approaches = approaches_for_ranked(
+            seller, target, ranked, locale=locale, insight_pack=insight_pack,
+        )
         by_id = {a["contact_id"]: a for a in approaches}
         for e in enriched:
             draft = by_id.get(e["contact_id"])
             if draft:
                 e["message"] = draft["message"]
 
-    return {
+    result: dict[str, Any] = {
         "target": target.__dict__,
         "locale": locale,
         "resolution": resolution_as_dict(resolution),
@@ -79,6 +82,9 @@ def build_find_result(
             else "You send the message. We find the bridge and the right ask — not spam through your network."
         ),
     }
+    if insight_pack is not None:
+        result["insight"] = insight_pack
+    return result
 
 
 def _target_row(

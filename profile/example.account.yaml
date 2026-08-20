@@ -1,14 +1,13 @@
-# Fictional account workspace — several buyers at one company.
-# Private copies: data/account.yaml (gitignored) when users save locally.
+# Demo account workspace — 3S Checkout (real public profiles).
 
-company: Acme Saúde
+company: 3S Checkout
 targets:
-  - id: t_marina
-    name: Marina Costa
-    title: Diretora de Compras
-  - id: t_farmacia
-    name: Paulo Almeida
-    title: Gerente de Farmácia
-  - id: t_clinico
-    name: Ricardo Mendes
-    title: Diretor Clínico
+  - id: t_sabrina
+    name: Sabrina Coelho Godoy
+    title: Analista de Recursos Humanos Pleno
+  - id: t_cintia
+    name: Cintia Monteiro
+    title: Analista de Departamento Pessoal
+  - id: t_beatris
+    name: Beatris Avelino
+    title: Gerente de RH

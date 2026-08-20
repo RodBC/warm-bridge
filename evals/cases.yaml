@@ -76,3 +76,52 @@ cases:
       company: Acme Saúde
       title: Diretora de Compras
     check: outcome_statuses
+
+  - id: linkedin_slug_resolve
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    check: linkedin_slug_resolve
+
+  - id: linkedin_map_mock
+    target:
+      name: Sabrina Coelho Godoy
+      company: 3S Checkout
+      title: Head de Parcerias
+    check: linkedin_map_mock
+
+  - id: otp_parse_linkedin_email
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    check: otp_parse_linkedin_email
+
+  - id: challenge_classifier
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    check: challenge_classifier
+
+  - id: app_password_preflight
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    check: app_password_preflight
+
+  - id: session_status_structure
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    check: session_status_structure
+
+  - id: research_pack_structure
+    target:
+      name: Marina Costa
+      company: Acme Saúde
+      title: Diretora de Compras
+    check: research_pack_structure

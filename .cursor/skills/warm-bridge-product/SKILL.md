@@ -10,7 +10,7 @@ description: >-
 
 ## Aim
 
-Profitable SaaS that sells **path leverage**: ranked warm bridges + human ask drafts grounded in the seller’s own network.
+Profitable SaaS that sells **path leverage**: ranked warm bridges + human ask drafts grounded in **session-observed mutuals** + **cited public insight**.
 
 ## Decision test
 
@@ -24,18 +24,23 @@ Ship only if it improves at least one:
 ## Moat order
 
 1. Bridge playbook + anti-spam-through-friend craft  
-2. Outcome data + reach tracker (DM / bridge / intro history) — **shipped browser-first; thicken before NET UI**  
-3. Notes / strength tutoring + suggestion quality (café, events, setup helpers)  
-4. Trust (no account-burning scrapers)  
+2. Outcome data + Casos + favor-bank  
+3. Public insight quality (cited hooks, not invented edges)  
+4. Trust (no inventing mutuals; no mass-send)  
 5. Network compounding (NET densifies with use)
 
 ## Default answers
 
-- LinkedIn auto-scrape? **No** in public core.  
+- LinkedIn Camoufox session? **Primary** — Career Fit friction pattern; ban/ToS risk accepted for wedge.  
+- Primary graph? **Session mutuals** via `POST /api/linkedin-map`.  
+- CSV / phone / paste? **Legacy fallback only** (UI “Legado”).  
+- Web search for insight? **Yes** — cited public snippets; never invent people.  
+- Invent mutuals from search? **Never.**  
 - Auto-send WhatsApp? **No**.  
-- More enrichment? **User-owned imports first**; green/yellow only per `docs/sources.yaml`.  
-- Vector search / pretty graph first? **No** — wedge path proof first; spider-web UI later and must stay actionable.  
-- Ecosystem NET (tracker + radar + graph)? **Yes as vision**; sequence: **outcomes before NET UI** (radar/spider-web).  
+- End-user password fields in UI/API? **No** — secrets file + agent paste only.  
+- SMS OTP gateway? **No** — email OTP or authenticator only.  
+- Demo fixture as default UX? **No** — eval/dev only.  
+- Radar / monetizing before Mapear wedge? **No**.  
 
-Read `docs/PRODUCT.md` (esp. Ecosystem arc) before changing tiers or positioning.  
-Code ownership: `docs/AI_BUILD_MAP.md`. Account workspace: `accounts.py` + `/api/find-account` + UI account mode. Outcomes: `outcomes.py` + `web/src/outcomes.ts`.
+Read `docs/PRODUCT.md` + `docs/LINKEDIN_SESSION.md` before changing intake.  
+Code: `linkedin_session/`, `research/`, `POST /api/linkedin-map`, `web/` Mapear.

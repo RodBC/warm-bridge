@@ -71,16 +71,20 @@ def explain_bridge(bridge: RankedBridge, target: Target, locale: str = "pt") -> 
             )
     if "mutual_hint" in types:
         note = (c.get("notes") or "").strip()
+        # Never surface internal labels like "Demo:" in the why copy
+        if note.lower().startswith("demo:"):
+            note = note.split(":", 1)[1].strip()
+        note = note.replace("Demo:", "").replace("demo:", "").strip()
         if note:
             snippet = note if len(note) <= 120 else note[:117] + "…"
             why.append(
-                f"Your note: “{snippet}”" if locale == "en" else f"Sua anotação: “{snippet}”"
+                f"Note: “{snippet}”" if locale == "en" else f"Anotação: “{snippet}”"
             )
         else:
             why.append(
                 "Tags/notes mention the target or company."
                 if locale == "en"
-                else "Tags/notas mencionam o alvo ou a empresa."
+                else "Tags/anotações mencionam o alvo ou a empresa."
             )
     if "phone_warm" in types:
         why.append(
@@ -145,6 +149,8 @@ def enrich_ranked(
                 "company": b.contact.get("company") or "",
                 "phone": b.contact.get("phone") or "",
                 "linkedin_url": b.contact.get("linkedin_url") or "",
+                "photo": b.contact.get("photo") or b.contact.get("avatar_url") or "",
+                "avatar_url": b.contact.get("avatar_url") or b.contact.get("photo") or "",
                 "sources": b.contact.get("sources") or [],
             }
         )

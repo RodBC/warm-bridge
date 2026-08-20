@@ -14,6 +14,7 @@ contacts:
     past_companies: ["Hospital Exemplo"]
     notes: "Colega de época do Hospital Exemplo; ainda fala com compras da Acme."
     phone: "+55 19 99876-5432"
+    linkedin_url: "https://www.linkedin.com/in/ana-ribeiro-acme-example"
     tags: [compras, interior-sp]
 
   - id: c_bruno
@@ -28,6 +29,7 @@ contacts:
     past_companies: []
     notes: "Indica bem; conhece Marina Costa de eventos da associação."
     phone: "+55 11 98765-4321"
+    linkedin_url: "https://www.linkedin.com/in/bruno-martins-horizonte-example"
     tags: [network-forte]
 
   - id: c_diana
@@ -41,6 +43,7 @@ contacts:
     schools: ["UNICAMP"]
     past_companies: []
     notes: "UNICAMP; mencionou interessar-se por networking em compras hospitalares."
+    linkedin_url: "https://www.linkedin.com/in/diana-lopes-norte-example"
     tags: [alumni-unicamp]
 
   - id: c_edu
@@ -54,6 +57,8 @@ contacts:
     schools: []
     past_companies: ["Acme Saúde"]
     notes: "Passou pela Acme Saúde há 2 anos."
+    phone: "+55 19 98888-7777"
+    linkedin_url: "https://www.linkedin.com/in/eduardo-nascimento-beta-example"
     tags: [ex-acme]
 
   - id: c_marina
@@ -67,6 +72,7 @@ contacts:
     schools: []
     past_companies: []
     notes: "Alvo frequente; conexão LinkedIn fraca / sem histórico."
+    linkedin_url: "https://www.linkedin.com/in/marina-costa-acme-example"
     tags: [target-example]
 
   - id: c_fernanda
@@ -80,4 +86,6 @@ contacts:
     schools: []
     past_companies: []
     notes: "Organiza encontros; Acme Saúde costuma participar."
+    phone: "+55 19 97777-6666"
+    linkedin_url: "https://www.linkedin.com/in/fernanda-dias-assoc-example"
     tags: [associacao]

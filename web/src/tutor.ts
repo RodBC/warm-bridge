@@ -1,10 +1,55 @@
 import type { Bridge, TutorAdvice } from "./api";
+import type { ReachEvent } from "./outcomes";
+import { recentFavorAsk } from "./outcomes";
 
 export function tutorLevelLabel(level: string, locale: string): string {
   const pt: Record<string, string> = { yes: "Sim", soft: "Leve", no: "Ainda não" };
   const en: Record<string, string> = { yes: "Yes", soft: "Soft", no: "Not yet" };
   const map = locale === "en" ? en : pt;
   return map[level] || level;
+}
+
+const FAVOR_DAYS = 14;
+
+/** Soft/no if this bridge was asked recently (sent / intro_landed). */
+export function applyFavorBank(
+  advice: TutorAdvice,
+  bridgeId: string,
+  outcomes: ReachEvent[],
+  locale: string,
+): TutorAdvice & { favor_cooldown?: boolean } {
+  const hit = recentFavorAsk(bridgeId, outcomes, FAVOR_DAYS);
+  if (!hit) return advice;
+  const en = locale === "en";
+  const when = hit.at.slice(0, 10);
+  return {
+    ...advice,
+    level: advice.level === "no" ? "no" : "soft",
+    can_ask: false,
+    favor_cooldown: true,
+    headline: en
+      ? `Cooldown — you already asked ${hit.bridgeName} recently (${when}).`
+      : `Já pediu recentemente a ${hit.bridgeName} (${when}).`,
+    headline_pt: `Já pediu recentemente a ${hit.bridgeName} (${when}).`,
+    headline_en: `Cooldown — you already asked ${hit.bridgeName} recently (${when}).`,
+    bullets: en
+      ? [
+          "Wait before asking the same bridge again.",
+          "Pick another path or mark status if this ask already landed.",
+        ]
+      : [
+          "Espere antes de pedir de novo à mesma ponte.",
+          "Escolha outro caminho ou atualize o status se o pedido já andou.",
+        ],
+    bullets_pt: [
+      "Espere antes de pedir de novo à mesma ponte.",
+      "Escolha outro caminho ou atualize o status se o pedido já andou.",
+    ],
+    bullets_en: [
+      "Wait before asking the same bridge again.",
+      "Pick another path or mark status if this ask already landed.",
+    ],
+  };
 }
 
 /** Client fallback when API omits tutor (older server). */
@@ -57,8 +102,13 @@ export function fallbackTutor(bridge: Bridge, locale: string): TutorAdvice {
   );
 }
 
-export function bridgeTutor(bridge: Bridge, locale: string): TutorAdvice {
-  return bridge.tutor ?? fallbackTutor(bridge, locale);
+export function bridgeTutor(
+  bridge: Bridge,
+  locale: string,
+  outcomes: ReachEvent[] = [],
+): TutorAdvice & { favor_cooldown?: boolean } {
+  const base = bridge.tutor ?? fallbackTutor(bridge, locale);
+  return applyFavorBank(base, bridge.contact_id, outcomes, locale);
 }
 
 function pack(

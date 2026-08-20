@@ -1,49 +1,42 @@
-# Fictional seller — private copy lives in data/seller.yaml (gitignored).
+# Default investigator — public LinkedIn identity (no scrape required for demo).
 
 identity:
-  name: Camila Ferreira
-  city: Campinas, Brazil
-  phone: "+55 19 90000-0000"
-  email: camila@example.com
-  linkedin: linkedin.com/in/camila-example
-  company: Ferreira & Assoc.
-  role: Executiva comercial
+  name: Rodrigo Castro
+  city: Brazil
+  linkedin: https://www.linkedin.com/in/rodrigo-castro-536b85209/
+  company: IQVIA
+  role: Software Engineer
+  headline: Software Engineer - IQVIA
 
 sales_tutoring:
   products_sold:
-    - Equipamentos e insumos para clínicas e hospitais regionais
+    - Soluções de dados e tecnologia para life sciences
   buyer_personas:
-    - Diretoria clínica
-    - Compras / suprimentos
-    - Coordenação de farmácia
+    - RH / People
+    - Liderança comercial e operações
   enjoyed_most:
-    - Chegar em tomador de decisão via indicação da rede
-    - Entender o fluxo real de compra antes de pitchar
+    - Abrir conversas via indicação da rede
   positive_differentials:
-    - Rede forte no interior de SP
-    - Conversa direta, sem deck na primeira mensagem
+    - Contexto técnico + comercial
   improvement_areas:
-    - Organizar follow-ups sem parecer cobrança
+    - Registrar outcomes após cada abordagem
   hates_doing:
-    - Cold call sem contexto
-    - Pedir indicação sem facilitar o “encaminha este texto”
-  challenges_overcome:
-    - Conta travada em compras; destravou via ex-coordenadora que abriu a diretoria
+    - Cold outreach sem contexto
+  challenges_overcome: []
   networking_style:
-    - Prefere WhatsApp curto
-    - Só pede intro quando a relação aguenta
+    - Prefere LinkedIn com mensagem objetiva
+    - Só pede intro quando a relação sustenta
 
 targets:
   locales: [pt, en]
-  default_channel: whatsapp
+  default_channel: linkedin
   territories:
-    - Interior SP
-    - Campinas / região
+    - Rede pessoal
 
 voice:
-  greeting_pt: "Oi {bridge_first},"
-  greeting_en: "Hi {bridge_first},"
-  signoff_pt: "Valeu demais,\nCamila"
-  signoff_en: "Thanks a lot,\nCamila"
-  value_one_liner_pt: "Ajudo clínicas a organizar compra de insumos com menos fricção."
-  value_one_liner_en: "I help clinics streamline supply purchasing with less friction."
+  greeting_pt: "Olá {bridge_first},"
+  greeting_en: "Hello {bridge_first},"
+  signoff_pt: "Obrigado,\nRodrigo Castro"
+  signoff_en: "Thank you,\nRodrigo Castro"
+  value_one_liner_pt: "Trabalho com tecnologia e dados em life sciences na IQVIA."
+  value_one_liner_en: "I work on technology and data for life sciences at IQVIA."

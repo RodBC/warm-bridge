@@ -14,7 +14,7 @@ Field sales get meetings via network; the product fails if every ask feels like 
 7. **Tone matches channel** — PT WhatsApp for BR field sales; EN LinkedIn for global. Short. Spoken. No “I hope this message finds you well”.
 8. **Protect the bridge** — Never pressure (“urgente”, “só depende de você”). Give an explicit out.
 9. **Target clarity** — Name role + company + why *this* person, not “alguém de compras”.
-10. **Human unevenness** — Real asks are slightly imperfect. Perfect symmetry + buzzwords reads as AI spam.
+11. **Public hook optional** — When `insight_pack` has cited snippets, one short line may reference public context (company news, role). Never invent personal history; hook must trace to a cited URL in the UI.
 
 ## Soft signals of “AI wrote this to use my friend”
 

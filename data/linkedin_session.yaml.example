@@ -1,0 +1,14 @@
+# Copy to data/linkedin_session.yaml (gitignored). Do not commit the real file.
+# Or run: bash scripts/setup_camoufox_profile.sh
+
+profile_dir: __PROFILE_DIR__
+backend: camoufox
+headless: false
+enrich: true
+enrich_cap: 16
+max_mutuals: 40
+
+# Legacy selenium backend (deprecated):
+# backend: selenium
+# user_data_dir: __PROFILE_DIR__
+# chrome_binary: ""
