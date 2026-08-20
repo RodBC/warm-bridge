@@ -25,7 +25,7 @@ History is short and intentional. Treat each commit as a **layer**, not a random
 | `821f3a2` | `docs: sequence NET long-arc in AGENTS north star` | **Contract alignment** | Put NET sequencing in AGENTS so agents don’t build radar/graph ahead of the wedge. |
 | `4c4f8f9` | `feat: send-ready workspace and account multi-target map` | **Wedge UX + account map** | Strength tutoring, localStorage session, ask dock, `accounts.py` + `/api/find-account` — one commit (files were entangled). |
 | `c12b62c` | `feat: outcome / reach logging` | **NET memory foundation** | Browser-first reach history + status chips; thin `POST /api/outcomes` validate/echo; no server PII store. |
-| *(this commit)* | `feat: LinkedIn-first session + Career Fit OTP bootstrap` | **Primary graph + auto login** | Camoufox `linkedin_session` primary; CSV legacy; burner state machine port; IMAP App Password OTP; research insight; Mapear UI; secrets gitignored. |
+| `68f3bdd` | `feat: LinkedIn-first session intake and Career Fit OTP bootstrap` | **Primary graph + auto login** | Camoufox `linkedin_session` primary; CSV legacy; burner state machine port; IMAP App Password OTP; research insight; Mapear UI; secrets gitignored. |
 
 **Invariant across layers:** session-observed graph (Camoufox primary; CSV demoted) · deterministic score → explain → template ask · you send · never invent mutuals · no fake `% fit` · direct ≠ bridge buckets.
 
